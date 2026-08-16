@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Itinerary &amp; Budget Planner • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .trip-card {
+            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        .itinerary-row:hover {
+            background-color: #0f172a;
+        }
+        .stat-value {
+            font-variant-numeric: tabular-nums;
+        }
+        .budget-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="px-6 pt-6 pb-3 border-b border-slate-800 flex items-center justify-between no-print">
+            <div class="flex items-center gap-x-4">
+                <a href="../index.html" class="flex items-center gap-x-2 text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Portfolio</span>
+                </a>
+                <div>
+                    <h1 class="font-semibold text-2xl tracking-tight">Travel Itinerary &amp; Budget Planner</h1>
+                    <p class="text-xs text-slate-400 -mt-0.5">Plan your trip day-by-day and stay on budget.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-x-2">
+                <a href="travel-itinerary-planner-standalone.html" download="travel-itinerary-planner.html"
+                   class="px-3 py-1.5 text-xs font-semibold border border-sky-600 hover:bg-sky-900/30 text-sky-400 rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-download"></i> <span>Download Offline</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Warning -->
+        <div class="mx-6 mt-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-2xl text-yellow-200 text-xs no-print">
+            <i class="fa-solid fa-exclamation-triangle mr-1.5"></i>
+            <strong>Public demo:</strong> Do not enter real trip details here. Download standalone for private use with actual plans and budgets.
+        </div>
+
+        <div class="p-6">
+            <!-- Trip Overview -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="font-semibold flex items-center gap-x-2">
+                        <i class="fa-solid fa-plane text-sky-400"></i>
+                        <span>Trip Overview</span>
+                    </div>
+                    <button onclick="editTripDetails()" class="px-3 py-1 text-xs border border-slate-700 hover:bg-slate-800 rounded-xl flex items-center gap-x-2">
+                        <i class="fa-solid fa-edit"></i> <span>Edit Details</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                        <div class="text-xs text-slate-400">Destination</div>
+                        <div id="dest" class="font-semibold text-lg">Paris, France</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">Dates</div>
+                        <div id="dates" class="font-semibold">Mar 15 – Mar 22, 2025</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">Travelers</div>
+                        <div id="travelers" class="font-semibold">2</div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400">Total Budget</div>
+                        <div id="budget" class="font-semibold text-emerald-400">$3,500</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Itinerary -->
+                <div class="lg:col-span-7">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-semibold flex items-center gap-x-2">
+                            <i class="fa-solid fa-calendar-day"></i>
+                            <span>Itinerary</span>
+                        </div>
+                        <button onclick="showAddActivityModal()" class="px-3 py-1.5 text-xs bg-sky-600 hover:bg-sky-500 rounded-2xl flex items-center gap-x-2">
+                            <i class="fa-solid fa-plus"></i> <span>Add Activity</span>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+                        <div id="itinerary-list" class="divide-y divide-slate-800 max-h-[420px] overflow-auto"></div>
+                    </div>
+                </div>
+
+                <!-- Budget Overview -->
+                <div class="lg:col-span-5">
+                    <div class="font-semibold mb-3 flex items-center gap-x-2">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Budget Overview</span>
+                    </div>
+                    
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                        <!-- Budget KPIs -->
+                        <div class="grid grid-cols-3 gap-4 mb-5 text-center">
+                            <div>
+                                <div class="text-xs text-slate-400">Budget</div>
+                                <div id="budget-total" class="text-2xl font-semibold text-emerald-400 stat-value">$0</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Spent</div>
+                                <div id="budget-spent" class="text-2xl font-semibold text-rose-400 stat-value">$0</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Remaining</div>
+                                <div id="budget-remaining" class="text-2xl font-semibold text-emerald-400 stat-value">$0</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex justify-between text-xs mb-1">
+                                <span>Progress</span>
+                                <span id="budget-percent">0%</span>
+                            </div>
+                            <div class="h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                                <div id="budget-bar" class="h-2.5 bg-gradient-to-r from-emerald-500 to-sky-500 budget-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Add Expense -->
+                        <div class="border-t border-slate-800 pt-4">
+                            <div class="text-xs font-medium mb-2 text-slate-400">Log Expense</div>
+                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                <select id="exp-category" class="bg-slate-950 border border-slate-700 text-sm px-3 py-2 rounded-2xl">
+                                    <option>Flights</option>
+                                    <option>Accommodation</option>
+                                    <option>Food &amp; Dining</option>
+                                    <option>Transport</option>
+                                    <option>Activities</option>
+                                    <option>Shopping</option>
+                                    <option>Misc</option>
+                                </select>
+                                <input id="exp-amount" type="number" placeholder="Amount" class="bg-slate-950 border border-slate-700 text-sm px-3 py-2 rounded-2xl">
+                            </div>
+                            <div class="flex gap-2">
+                                <input id="exp-desc" placeholder="Description" class="flex-1 bg-slate-950 border border-slate-700 text-sm px-3 py-2 rounded-2xl">
+                                <button onclick="addExpense()" class="px-4 bg-sky-600 hover:bg-sky-500 text-sm font-semibold rounded-2xl">Add</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spending by Category -->
+                    <div class="mt-4">
+                        <div class="text-xs font-medium mb-2 text-slate-400">Spending by Category</div>
+                        <div id="category-breakdown" class="space-y-2 text-sm bg-slate-900 border border-slate-800 rounded-3xl p-4"></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-6 flex gap-x-2 text-xs">
+                <button onclick="exportItineraryCSV()" class="px-3 py-1.5 border border-slate-700 hover:bg-slate-800 rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-file-export"></i> <span>Export Itinerary + Budget (CSV)</span>
+                </button>
+                <button onclick="resetAll()" class="px-3 py-1.5 border border-red-900/50 text-red-400 hover:bg-red-900/20 rounded-2xl">Reset Demo Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Activity Modal -->
+    <div id="activity-modal" onclick="if (event.target.id === 'activity-modal') hideActivityModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div onclick="event.stopImmediatePropagation()" class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6">
+            <h3 id="modal-title" class="font-semibold text-xl mb-4">Add Activity</h3>
+            
+            <div class="space-y-3 text-sm">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-slate-400">Date</label>
+                        <input id="act-date" type="date" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-2xl mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400">Time</label>
+                        <input id="act-time" type="time" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-2xl mt-1">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400">Activity</label>
+                    <input id="act-name" placeholder="Eiffel Tower visit" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-2xl mt-1">
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400">Location</label>
+                    <input id="act-location" placeholder="Champ de Mars" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-2xl mt-1">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-slate-400">Estimated Cost</label>
+                        <input id="act-cost" type="number" step="0.01" placeholder="0" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-2xl mt-1">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400">Notes (optional)</label>
+                        <input id="act-notes" placeholder="Book tickets online" class="w-full bg-slate-950 border border-slate-700 px-3 py-2 rounded-2xl mt-1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-x-3">
+                <button onclick="saveActivity()" id="save-activity-btn" class="flex-1 py-3 bg-sky-600 hover:bg-sky-500 font-semibold rounded-2xl">Add Activity</button>
+                <button onclick="hideActivityModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 font-semibold rounded-2xl">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let trip = {
+            destination: "Paris, France",
+            startDate: "2025-03-15",
+            endDate: "2025-03-22",
+            travelers: 2,
+            budget: 3500
+        };
+        
+        let activities = [];
+        let expenses = [];
+        let currentEditActivityId = null;
+
+        function loadData() {
+            const savedTrip = localStorage.getItem('travel_planner_trip');
+            const savedActivities = localStorage.getItem('travel_planner_activities');
+            const savedExpenses = localStorage.getItem('travel_planner_expenses');
+
+            if (savedTrip) trip = JSON.parse(savedTrip);
+            if (savedActivities) activities = JSON.parse(savedActivities);
+            if (savedExpenses) expenses = JSON.parse(savedExpenses);
+
+            // Sample data for demo
+            if (activities.length === 0 && !savedActivities) {
+                const sampleDate = trip.startDate;
+                activities = [
+                    { id: 'a1', date: sampleDate, time: '09:00', name: 'Arrival & Check-in', location: 'CDG Airport / Hotel', cost: 0, notes: 'Metro to hotel' },
+                    { id: 'a2', date: sampleDate, time: '14:00', name: 'Eiffel Tower', location: 'Champ de Mars', cost: 28, notes: 'Book timed entry' },
+                    { id: 'a3', date: trip.startDate, time: '19:00', name: 'Seine River Cruise', location: 'Pont Neuf', cost: 45, notes: '' }
+                ];
+                expenses = [
+                    { id: 'e1', date: sampleDate, category: 'Accommodation', amount: 850, desc: 'Hotel for 7 nights' },
+                    { id: 'e2', date: sampleDate, category: 'Flights', amount: 620, desc: 'Roundtrip tickets' }
+                ];
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('travel_planner_trip', JSON.stringify(trip));
+            localStorage.setItem('travel_planner_activities', JSON.stringify(activities));
+            localStorage.setItem('travel_planner_expenses', JSON.stringify(expenses));
+            renderAll();
+        }
+
+        function renderTripHeader() {
+            document.getElementById('dest').textContent = trip.destination;
+            document.getElementById('dates').textContent = `${trip.startDate} – ${trip.endDate}`;
+            document.getElementById('travelers').textContent = trip.travelers;
+            document.getElementById('budget').textContent = '$' + trip.budget.toLocaleString();
+        }
+
+        function editTripDetails() {
+            const dest = prompt('Destination:', trip.destination);
+            if (dest === null) return;
+            const start = prompt('Start Date (YYYY-MM-DD):', trip.startDate);
+            if (start === null) return;
+            const end = prompt('End Date (YYYY-MM-DD):', trip.endDate);
+            if (end === null) return;
+            const trav = prompt('Number of travelers:', trip.travelers);
+            if (trav === null) return;
+            const bud = prompt('Total Budget:', trip.budget);
+            if (bud === null) return;
+
+            trip.destination = dest || trip.destination;
+            trip.startDate = start || trip.startDate;
+            trip.endDate = end || trip.endDate;
+            trip.travelers = parseInt(trav) || trip.travelers;
+            trip.budget = parseFloat(bud) || trip.budget;
+
+            saveData();
+        }
+
+        function renderItinerary() {
+            const container = document.getElementById('itinerary-list');
+            container.innerHTML = '';
+
+            if (activities.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-sm text-slate-400">
+                        No activities yet. Add your first one!
+                    </div>`;
+                return;
+            }
+
+            // Sort by date then time
+            const sorted = [...activities].sort((a, b) => {
+                if (a.date !== b.date) return a.date.localeCompare(b.date);
+                return (a.time || '').localeCompare(b.time || '');
+            });
+
+            sorted.forEach(act => {
+                const div = document.createElement('div');
+                div.className = 'itinerary-row flex items-center justify-between px-4 py-3 text-sm';
+                div.innerHTML = `
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-baseline gap-x-2">
+                            <span class="font-medium">${act.name}</span>
+                            <span class="text-xs text-slate-400">${act.date} ${act.time ? '• ' + act.time : ''}</span>
+                        </div>
+                        ${act.location ? `<div class="text-xs text-slate-400 truncate">${act.location}</div>` : ''}
+                        ${act.notes ? `<div class="text-[10px] text-slate-500 mt-0.5">${act.notes}</div>` : ''}
+                    </div>
+                    <div class="flex items-center gap-x-3 ml-4">
+                        <span class="font-mono text-emerald-400 text-sm">$${act.cost.toFixed(0)}</span>
+                        <div class="flex gap-x-1">
+                            <button onclick="editActivity('${act.id}')" class="text-slate-400 hover:text-white px-1"><i class="fa-solid fa-edit text-xs"></i></button>
+                            <button onclick="deleteActivity('${act.id}')" class="text-red-400 hover:text-red-300 px-1"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderBudget() {
+            const totalBudget = trip.budget;
+            let totalSpent = activities.reduce((sum, a) => sum + (a.cost || 0), 0);
+            totalSpent += expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+            const remaining = Math.max(0, totalBudget - totalSpent);
+            const percent = totalBudget > 0 ? Math.min(100, Math.round((totalSpent / totalBudget) * 100)) : 0;
+
+            document.getElementById('budget-total').textContent = '$' + totalBudget.toLocaleString();
+            document.getElementById('budget-spent').textContent = '$' + totalSpent.toLocaleString();
+            document.getElementById('budget-remaining').textContent = '$' + remaining.toLocaleString();
+            document.getElementById('budget-percent').textContent = percent + '%';
+
+            const bar = document.getElementById('budget-bar');
+            bar.style.width = percent + '%';
+            bar.className = `h-2.5 budget-bar rounded-full ${percent > 90 ? 'bg-gradient-to-r from-rose-500 to-red-500' : 'bg-gradient-to-r from-emerald-500 to-sky-500'}`;
+        }
+
+        function renderCategoryBreakdown() {
+            const container = document.getElementById('category-breakdown');
+            container.innerHTML = '';
+
+            const byCat = {};
+            expenses.forEach(e => {
+                const cat = e.category || 'Misc';
+                if (!byCat[cat]) byCat[cat] = 0;
+                byCat[cat] += e.amount || 0;
+            });
+
+            // Also bucket activities under "Activities" roughly
+            const actTotal = activities.reduce((s, a) => s + (a.cost || 0), 0);
+            if (actTotal > 0) {
+                byCat['Activities'] = (byCat['Activities'] || 0) + actTotal;
+            }
+
+            const total = Object.values(byCat).reduce((a, b) => a + b, 0);
+            if (total === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-400">No expenses yet.</div>`;
+                return;
+            }
+
+            Object.entries(byCat).sort((a,b) => b[1]-a[1]).forEach(([cat, amt]) => {
+                const pct = Math.round((amt / total) * 100);
+                const row = document.createElement('div');
+                row.innerHTML = `
+                    <div class="flex justify-between text-xs mb-0.5">
+                        <span>${cat}</span>
+                        <span class="font-mono">$${amt.toFixed(0)} <span class="text-slate-400">(${pct}%)</span></span>
+                    </div>
+                    <div class="h-1.5 bg-slate-800 rounded"><div class="h-1.5 bg-sky-500 rounded" style="width:${pct}%"></div></div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function renderAll() {
+            renderTripHeader();
+            renderItinerary();
+            renderBudget();
+            renderCategoryBreakdown();
+        }
+
+        function showAddActivityModal(editId = null) {
+            const modal = document.getElementById('activity-modal');
+            const title = document.getElementById('modal-title');
+            const saveBtn = document.getElementById('save-activity-btn');
+
+            currentEditActivityId = editId;
+
+            if (editId) {
+                const act = activities.find(a => a.id === editId);
+                title.textContent = 'Edit Activity';
+                saveBtn.textContent = 'Save Changes';
+                document.getElementById('act-date').value = act.date;
+                document.getElementById('act-time').value = act.time || '';
+                document.getElementById('act-name').value = act.name;
+                document.getElementById('act-location').value = act.location || '';
+                document.getElementById('act-cost').value = act.cost;
+                document.getElementById('act-notes').value = act.notes || '';
+            } else {
+                title.textContent = 'Add Activity';
+                saveBtn.textContent = 'Add Activity';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('act-date').value = trip.startDate || today;
+                document.getElementById('act-time').value = '10:00';
+                document.getElementById('act-name').value = '';
+                document.getElementById('act-location').value = '';
+                document.getElementById('act-cost').value = '';
+                document.getElementById('act-notes').value = '';
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function hideActivityModal() {
+            const modal = document.getElementById('activity-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+            currentEditActivityId = null;
+        }
+
+        function saveActivity() {
+            const date = document.getElementById('act-date').value;
+            const time = document.getElementById('act-time').value;
+            const name = document.getElementById('act-name').value.trim();
+            const location = document.getElementById('act-location').value.trim();
+            const cost = parseFloat(document.getElementById('act-cost').value) || 0;
+            const notes = document.getElementById('act-notes').value.trim();
+
+            if (!date || !name) {
+                alert('Date and Activity name are required.');
+                return;
+            }
+
+            if (currentEditActivityId) {
+                const idx = activities.findIndex(a => a.id === currentEditActivityId);
+                if (idx !== -1) {
+                    activities[idx] = { ...activities[idx], date, time, name, location, cost, notes };
+                }
+            } else {
+                activities.push({
+                    id: 'a' + Date.now(),
+                    date, time, name, location, cost, notes
+                });
+            }
+
+            saveData();
+            hideActivityModal();
+        }
+
+        function editActivity(id) {
+            showAddActivityModal(id);
+        }
+
+        function deleteActivity(id) {
+            if (!confirm('Delete this activity?')) return;
+            activities = activities.filter(a => a.id !== id);
+            saveData();
+        }
+
+        function addExpense() {
+            const cat = document.getElementById('exp-category').value;
+            const amount = parseFloat(document.getElementById('exp-amount').value);
+            const desc = document.getElementById('exp-desc').value.trim() || 'Expense';
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount.');
+                return;
+            }
+
+            expenses.push({
+                id: 'e' + Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                category: cat,
+                amount: amount,
+                desc: desc
+            });
+
+            document.getElementById('exp-amount').value = '';
+            document.getElementById('exp-desc').value = '';
+
+            saveData();
+        }
+
+        function deleteExpense(id) {
+            expenses = expenses.filter(e => e.id !== id);
+            saveData();
+        }
+
+        function exportItineraryCSV() {
+            let csv = 'Date,Time,Activity,Location,Cost,Notes\n';
+            activities.forEach(a => {
+                csv += `"${a.date}","${a.time || ''}","${a.name}","${a.location || ''}",${a.cost},"${a.notes || ''}"\n`;
+            });
+            csv += '\n\nExpenses\n';
+            csv += 'Date,Category,Description,Amount\n';
+            expenses.forEach(e => {
+                csv += `"${e.date}","${e.category}","${e.desc}",${e.amount}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'travel-itinerary-budget.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function resetAll() {
+            if (!confirm('Reset all trip data to demo?')) return;
+            localStorage.removeItem('travel_planner_trip');
+            localStorage.removeItem('travel_planner_activities');
+            localStorage.removeItem('travel_planner_expenses');
+            location.reload();
+        }
+
+        function init() {
+            loadData();
+            renderAll();
+
+            // Make trip details editable on click for nicer UX
+            const header = document.querySelector('.bg-slate-900.border.border-slate-800.rounded-3xl.p-5.mb-6');
+            if (header) header.addEventListener('click', (e) => {
+                if (!e.target.closest('button')) editTripDetails();
+            });
+
+            console.log('%c[Travel Itinerary Planner] Tool ready.', 'color:#64748b');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

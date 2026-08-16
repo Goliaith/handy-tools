@@ -1,0 +1,23 @@
+[build]
+  # This is a pure static site. No build step required.
+  publish = "."
+  command = ""
+
+[forms]
+  # Explicitly enable form handling (Netlify usually auto-detects, but this is clear).
+  # The form named "suggest-tool" in index.html will appear in your dashboard.
+
+[[headers]]
+  # Basic security headers (optional but recommended)
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Optional: If you ever add client-side routing in the future, uncomment below
+# [[redirects]]
+#   from = "/*"
+#   to = "/index.html"
+#   status = 200

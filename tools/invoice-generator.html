@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Generator • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .invoice-paper {
+            background: white; color: #111827;
+            box-shadow: 0 10px 30px -15px rgb(0 0 0 / 0.3);
+        }
+        .line-item-input { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; font-size: 0.875rem; }
+        @media print {
+            .no-print { display: none !important; }
+            .invoice-paper { box-shadow: none; margin: 0; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="px-6 pt-6 pb-3 border-b border-slate-800 flex items-center justify-between no-print">
+            <div class="flex items-center gap-x-4">
+                <a href="../index.html" class="flex items-center gap-x-2 text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Back to Portfolio</span>
+                </a>
+                <div class="flex items-center gap-x-3">
+                    <div class="w-8 h-8 bg-amber-600 rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-file-invoice-dollar text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-semibold text-2xl tracking-tight">Invoice Generator</h1>
+                        <p class="text-xs text-slate-400 -mt-0.5">Professional invoices in seconds</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-x-2">
+                <a href="invoice-generator-standalone.html" download="invoice-generator.html"
+                   class="px-3 py-1.5 text-xs font-semibold border border-amber-600 hover:bg-amber-900/30 text-amber-400 rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-download"></i> <span>Download Offline</span>
+                </a>
+                <button onclick="addLineItem()" class="px-3 py-1.5 bg-white text-slate-900 font-semibold text-sm rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-plus"></i> <span>Add Line</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mx-6 mt-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-2xl text-yellow-200 text-xs no-print">
+            <i class="fa-solid fa-exclamation-triangle mr-1.5"></i>
+            <strong>Public demo:</strong> This is public. Download standalone for real client invoices.
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                
+                <!-- Invoice Form -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                        <div class="font-semibold text-sm mb-3 flex items-center gap-x-2"><i class="fa-solid fa-building text-amber-400"></i> FROM</div>
+                        <div class="space-y-2 text-sm">
+                            <input id="fromName" value="Your Company" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                            <input id="fromEmail" value="you@company.com" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                            <input id="fromAddress" value="123 Business Rd, City, ST 12345" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                        <div class="font-semibold text-sm mb-3 flex items-center gap-x-2"><i class="fa-solid fa-user text-amber-400"></i> BILL TO</div>
+                        <div class="space-y-2 text-sm">
+                            <input id="toName" value="Client Name" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                            <input id="toEmail" value="client@email.com" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                            <input id="toAddress" value="456 Client Ave, Town, ST 67890" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                        <div class="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                                <div class="text-xs text-slate-400">Invoice #</div>
+                                <input id="invoiceNumber" value="INV-2025-0042" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Issue Date</div>
+                                <input type="date" id="issueDate" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Due Date</div>
+                                <input type="date" id="dueDate" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Tax Rate %</div>
+                                <input id="taxRate" value="8.5" type="number" step="0.1" oninput="updateInvoice()" class="line-item-input w-full rounded-xl px-3 py-2 text-sm">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Line Items + Totals -->
+                <div class="lg:col-span-3">
+                    <div class="bg-white border border-slate-300 rounded-3xl overflow-hidden shadow-sm">
+                        <div class="p-5 text-slate-900">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <div class="font-semibold text-xl" id="preview-company">Your Company</div>
+                                    <div id="preview-from" class="text-xs text-slate-500 leading-tight mt-0.5"></div>
+                                </div>
+                                <div class="text-right text-xs text-slate-500">
+                                    <div class="font-semibold text-sm text-slate-900" id="preview-invoice">INV-2025-0042</div>
+                                    <div>Issued: <span id="preview-issue"></span></div>
+                                    <div>Due: <span id="preview-due"></span></div>
+                                </div>
+                            </div>
+
+                            <!-- Bill To -->
+                            <div class="mb-4">
+                                <div class="text-[10px] font-semibold tracking-wider text-slate-400">BILL TO</div>
+                                <div class="font-semibold text-slate-900" id="preview-billto-name">Client Name</div>
+                                <div id="preview-billto-address" class="text-xs text-slate-600 whitespace-pre-line leading-tight"></div>
+                            </div>
+
+                            <div id="line-items" class="space-y-2 mb-4">
+                                <!-- JS rows -->
+                            </div>
+
+                            <button onclick="addLineItem()" class="text-xs px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700">
+                                <i class="fa-solid fa-plus mr-1"></i> Add another item
+                            </button>
+
+                            <div class="mt-5 border-t pt-4 text-sm space-y-1 text-slate-700">
+                                <div class="flex justify-between"><span>Subtotal</span> <span id="subtotal">$0.00</span></div>
+                                <div class="flex justify-between items-center">
+                                    <span>Tax (<span id="tax-display">8.5</span>%)</span>
+                                    <span id="tax-amount">$0.00</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center gap-x-1">
+                                        <span>Discount</span>
+                                        <input id="discount" value="0" type="number" oninput="updateInvoice()" class="w-20 border text-xs px-2 py-0.5 rounded bg-white text-slate-900">
+                                    </div>
+                                    <span id="discount-amount">-$0.00</span>
+                                </div>
+                                <div class="flex justify-between font-semibold text-base border-t pt-2 mt-2">
+                                    <span>Total Due</span> <span id="grand-total" class="font-bold">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-x-2 mt-4 no-print">
+                        <button onclick="printInvoice()" class="flex-1 px-4 py-2.5 bg-white text-slate-900 font-semibold rounded-2xl flex items-center justify-center gap-x-2">
+                            <i class="fa-solid fa-print"></i> <span>Print / Save PDF</span>
+                        </button>
+                        <button onclick="exportInvoiceJSON()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 rounded-2xl flex items-center gap-x-2 text-sm">
+                            <i class="fa-solid fa-file-export"></i> <span>Export JSON</span>
+                        </button>
+                        <button onclick="resetInvoice()" class="px-4 py-2.5 bg-slate-900 hover:bg-red-900/30 border border-red-900/40 text-red-400 rounded-2xl text-sm">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lineItems = [];
+
+        function loadDefaults() {
+            const today = new Date();
+            const due = new Date(today); due.setDate(due.getDate() + 30);
+            
+            document.getElementById('issueDate').value = today.toISOString().split('T')[0];
+            document.getElementById('dueDate').value = due.toISOString().split('T')[0];
+
+            if (lineItems.length === 0) {
+                lineItems = [
+                    { id: 'l1', desc: 'Design consultation', qty: 1, rate: 1250 },
+                    { id: 'l2', desc: 'UI/UX prototype delivery', qty: 1, rate: 850 },
+                    { id: 'l3', desc: 'Revision round', qty: 3, rate: 175 }
+                ];
+            }
+        }
+
+        function addLineItem() {
+            lineItems.push({ id: 'l' + Date.now(), desc: 'New service', qty: 1, rate: 100 });
+            renderLineItems();
+            updateInvoice();
+        }
+
+        function removeLineItem(id) {
+            lineItems = lineItems.filter(i => i.id !== id);
+            renderLineItems();
+            updateInvoice();
+        }
+
+        function updateLineItem(id, field, value) {
+            const item = lineItems.find(i => i.id === id);
+            if (item) {
+                if (field === 'qty' || field === 'rate') item[field] = parseFloat(value) || 0;
+                else item[field] = value;
+                updateInvoice();
+            }
+        }
+
+        function renderLineItems() {
+            const container = document.getElementById('line-items');
+            container.innerHTML = '';
+            
+            lineItems.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-12 gap-2 items-center text-sm';
+                row.innerHTML = `
+                    <div class="col-span-6">
+                        <input value="${item.desc}" oninput="updateLineItem('${item.id}', 'desc', this.value)" 
+                               class="line-item-input w-full px-3 py-1.5 rounded-xl text-sm text-slate-900 bg-white border">
+                    </div>
+                    <div class="col-span-2">
+                        <input type="number" value="${item.qty}" oninput="updateLineItem('${item.id}', 'qty', this.value)"
+                               class="line-item-input w-full px-3 py-1.5 rounded-xl text-sm text-slate-900 bg-white border">
+                    </div>
+                    <div class="col-span-2">
+                        <input type="number" step="0.01" value="${item.rate}" oninput="updateLineItem('${item.id}', 'rate', this.value)"
+                               class="line-item-input w-full px-3 py-1.5 rounded-xl text-sm text-slate-900 bg-white border">
+                    </div>
+                    <div class="col-span-1 text-right font-medium text-slate-800 tabular-nums" id="amt-${item.id}">
+                        $${(item.qty * item.rate).toFixed(2)}
+                    </div>
+                    <div class="col-span-1 text-right">
+                        <button onclick="removeLineItem('${item.id}')" class="text-red-400 hover:text-red-600 px-2"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function updateInvoice() {
+            // From
+            document.getElementById('preview-company').textContent = document.getElementById('fromName').value || 'Your Company';
+            const fromEmail = document.getElementById('fromEmail').value;
+            const fromAddr = document.getElementById('fromAddress').value;
+            const fromHtml = [fromAddr, fromEmail].filter(Boolean).join('<br>');
+            document.getElementById('preview-from').innerHTML = fromHtml || '';
+
+            // Invoice meta
+            document.getElementById('preview-invoice').textContent = document.getElementById('invoiceNumber').value;
+            const issue = document.getElementById('issueDate').value;
+            const due = document.getElementById('dueDate').value;
+            document.getElementById('preview-issue').textContent = issue || '';
+            document.getElementById('preview-due').textContent = due || '';
+
+            // Bill To
+            const toName = document.getElementById('toName').value || 'Client Name';
+            const toEmail = document.getElementById('toEmail').value;
+            const toAddr = document.getElementById('toAddress').value;
+            document.getElementById('preview-billto-name').textContent = toName;
+
+            let billToHtml = toAddr || '';
+            if (toEmail) {
+                billToHtml += (billToHtml ? '<br>' : '') + toEmail;
+            }
+            document.getElementById('preview-billto-address').innerHTML = billToHtml;
+
+            // Calculations
+            let subtotal = 0;
+            lineItems.forEach(item => {
+                const amt = (item.qty || 0) * (item.rate || 0);
+                subtotal += amt;
+                const amtEl = document.getElementById(`amt-${item.id}`);
+                if (amtEl) amtEl.textContent = '$' + amt.toFixed(2);
+            });
+
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
+
+            const tax = subtotal * (taxRate / 100);
+            const total = subtotal + tax - discount;
+
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('tax-display').textContent = taxRate;
+            document.getElementById('tax-amount').textContent = '$' + tax.toFixed(2);
+            document.getElementById('discount-amount').textContent = '-$' + discount.toFixed(2);
+            document.getElementById('grand-total').textContent = '$' + Math.max(0, total).toFixed(2);
+        }
+
+        function printInvoice() {
+            const container = document.querySelector('.bg-white.border.border-slate-300');
+            if (!container) return;
+
+            // Clone and clean for print (remove edit inputs, keep values as text)
+            const clone = container.cloneNode(true);
+
+            // Replace input fields in line items with their values as plain text
+            clone.querySelectorAll('input').forEach(inp => {
+                const val = inp.value || '';
+                const span = document.createElement('span');
+                span.textContent = val;
+                span.className = 'text-sm';
+                inp.parentNode.replaceChild(span, inp);
+            });
+
+            // Remove the "Add line" button
+            const addBtn = clone.querySelector('button');
+            if (addBtn) addBtn.remove();
+
+            const win = window.open('', '', 'height=700,width=900');
+            win.document.write('<html><head><title>Invoice</title>');
+            win.document.write(`<style>
+                body { font-family: Inter, system-ui, sans-serif; margin: 40px; color: #111827; }
+                .bg-white { border: none !important; box-shadow: none !important; }
+                input { display: none; }
+            </style>`);
+            win.document.write('</head><body>');
+            win.document.write(clone.outerHTML);
+            win.document.write('</body></html>');
+            win.document.close();
+            setTimeout(() => { win.print(); win.close(); }, 250);
+        }
+
+        function exportInvoiceJSON() {
+            const data = {
+                from: {
+                    name: document.getElementById('fromName').value,
+                    email: document.getElementById('fromEmail').value,
+                    address: document.getElementById('fromAddress').value
+                },
+                to: {
+                    name: document.getElementById('toName').value,
+                    email: document.getElementById('toEmail').value,
+                    address: document.getElementById('toAddress').value
+                },
+                invoiceNumber: document.getElementById('invoiceNumber').value,
+                issueDate: document.getElementById('issueDate').value,
+                dueDate: document.getElementById('dueDate').value,
+                taxRate: document.getElementById('taxRate').value,
+                discount: document.getElementById('discount').value,
+                items: lineItems,
+                exported: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = (document.getElementById('invoiceNumber').value || 'invoice') + '.json';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function resetInvoice() {
+            if (!confirm('Reset invoice to defaults?')) return;
+            lineItems = [];
+            document.getElementById('fromName').value = 'Your Company';
+            document.getElementById('fromEmail').value = 'you@company.com';
+            document.getElementById('fromAddress').value = '123 Business Rd, City, ST 12345';
+            document.getElementById('toName').value = 'Client Name';
+            document.getElementById('toEmail').value = 'client@email.com';
+            document.getElementById('toAddress').value = '456 Client Ave, Town, ST 67890';
+            document.getElementById('invoiceNumber').value = 'INV-' + new Date().getFullYear() + '-0001';
+            document.getElementById('taxRate').value = '8.5';
+            document.getElementById('discount').value = '0';
+            loadDefaults();
+            renderLineItems();
+            updateInvoice();
+        }
+
+        function init() {
+            loadDefaults();
+            renderLineItems();
+            updateInvoice();
+
+            // Auto update on any input
+            document.querySelectorAll('input').forEach(inp => {
+                inp.addEventListener('input', updateInvoice);
+            });
+            
+            console.log('%c[Invoice Generator] Ready. Add lines, adjust rates, print.', 'color:#64748b');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

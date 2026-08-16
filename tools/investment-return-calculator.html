@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investment Return Calculator • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .section-card { background: #0f172a; border: 1px solid #334155; }
+        .result-value { font-size: 1.5rem; font-weight: 600; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-screen-xl mx-auto">
+        <!-- Header -->
+        <div class="px-8 pt-6 pb-4 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-x-4">
+                <a href="../index.html" class="flex items-center gap-x-2 text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Portfolio</span>
+                </a>
+                <div>
+                    <h1 class="font-semibold text-2xl">Investment Return Calculator</h1>
+                    <p class="text-sm text-slate-400">Model real estate deals • IRR, Cash-on-Cash, Sensitivity</p>
+                </div>
+            </div>
+            <div class="flex gap-x-2">
+                <a href="investment-return-calculator-standalone.html" download="investment-return-calculator.html"
+                   class="px-4 py-2 text-sm font-medium border border-blue-600 hover:bg-blue-900 text-blue-400 rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-download mr-2"></i> Download Standalone HTML
+                </a>
+                <button onclick="resetCalculator()" 
+                        class="px-4 py-2 text-sm font-medium bg-slate-800 hover:bg-slate-700 rounded-2xl">
+                    <i class="fa-solid fa-undo mr-2"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Public Demo Warning -->
+        <div class="mx-8 mt-4 p-4 bg-yellow-900/30 border border-yellow-600 rounded-2xl text-yellow-200 text-sm">
+            <i class="fa-solid fa-exclamation-triangle mr-2"></i>
+            <strong>Warning:</strong> This is a public demonstration version. 
+            <strong>Do not enter any real financial or personal data</strong> tied to identifiable parties. 
+            For real use, download and use the <strong>standalone HTML version</strong> privately.
+        </div>
+
+        <div class="p-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <!-- Inputs -->
+                <div class="section-card rounded-3xl p-6">
+                    <h3 class="font-semibold text-lg mb-4 flex items-center gap-x-2">
+                        <i class="fa-solid fa-edit"></i> Deal Assumptions
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs text-slate-400">Purchase Price</label>
+                            <input id="purchase-price" type="number" value="500000" 
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Down Payment %</label>
+                            <input id="down-payment" type="number" value="20" 
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Loan Interest Rate %</label>
+                            <input id="interest-rate" type="number" value="6.5" step="0.1"
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Loan Term (years)</label>
+                            <input id="loan-term" type="number" value="30"
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Monthly Rent</label>
+                            <input id="monthly-rent" type="number" value="3200"
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Monthly Expenses</label>
+                            <input id="monthly-expenses" type="number" value="1100"
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Annual Appreciation %</label>
+                            <input id="appreciation" type="number" value="3" step="0.5"
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Holding Period (years)</label>
+                            <input id="holding-period" type="number" value="5"
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400">Exit Cap Rate %</label>
+                            <input id="exit-cap" type="number" value="5.5" step="0.1"
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 mt-1" 
+                                   onchange="calculateReturns()">
+                        </div>
+                    </div>
+
+                    <button onclick="calculateReturns()" 
+                            class="mt-6 w-full bg-white text-slate-900 font-semibold py-3 rounded-2xl">
+                        Calculate Returns
+                    </button>
+                </div>
+
+                <!-- Results -->
+                <div class="space-y-6">
+                    <div class="section-card rounded-3xl p-6">
+                        <h3 class="font-semibold text-lg mb-4">Key Metrics</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-xs text-slate-400">Cash-on-Cash Return</div>
+                                <div id="cash-on-cash" class="result-value text-emerald-400">--</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Annual Cash Flow</div>
+                                <div id="annual-cash-flow" class="result-value">--</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Projected IRR</div>
+                                <div id="irr" class="result-value text-blue-400">--</div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-slate-400">Equity Multiple</div>
+                                <div id="equity-multiple" class="result-value">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section-card rounded-3xl p-6">
+                        <h3 class="font-semibold text-lg mb-3">5-Year Projection</h3>
+                        <canvas id="projectionChart" height="140"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sensitivity Table -->
+            <div class="mt-8 section-card rounded-3xl p-6">
+                <h3 class="font-semibold text-lg mb-4">Sensitivity Analysis (IRR vs Exit Cap &amp; Rent Growth)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-slate-400 border-b border-slate-700">
+                                <th class="p-2 text-left">Exit Cap \ Rent Growth</th>
+                                <th class="p-2">1%</th>
+                                <th class="p-2">2%</th>
+                                <th class="p-2">3%</th>
+                                <th class="p-2">4%</th>
+                                <th class="p-2">5%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensitivity-table" class="text-center"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let projectionChart = null;
+
+        function calculateReturns() {
+            const purchase = parseFloat(document.getElementById('purchase-price').value) || 0;
+            const downPct = parseFloat(document.getElementById('down-payment').value) || 0;
+            const rate = parseFloat(document.getElementById('interest-rate').value) || 0;
+            const term = parseFloat(document.getElementById('loan-term').value) || 30;
+            const rent = parseFloat(document.getElementById('monthly-rent').value) || 0;
+            const expenses = parseFloat(document.getElementById('monthly-expenses').value) || 0;
+            const appreciation = parseFloat(document.getElementById('appreciation').value) || 0;
+            const years = parseFloat(document.getElementById('holding-period').value) || 5;
+            const exitCap = parseFloat(document.getElementById('exit-cap').value) || 5;
+
+            const downPayment = purchase * (downPct / 100);
+            const loanAmount = purchase - downPayment;
+            const monthlyRate = rate / 100 / 12;
+            const numPayments = term * 12;
+            
+            // Monthly mortgage payment
+            let mortgage = 0;
+            if (monthlyRate > 0) {
+                mortgage = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+            }
+            
+            const annualDebtService = mortgage * 12;
+            const annualRent = rent * 12;
+            const annualExpenses = expenses * 12;
+            const annualCashFlow = annualRent - annualExpenses - annualDebtService;
+
+            const cashOnCash = downPayment > 0 ? (annualCashFlow / downPayment) * 100 : 0;
+
+            // Simple IRR approximation (cash flows + sale)
+            let futureValue = purchase * Math.pow(1 + appreciation / 100, years);
+            let saleProceeds = futureValue * (1 - exitCap / 100) - loanAmount * Math.pow(1 + rate/100 * 0.7, years); // rough remaining balance
+            let totalCashFlows = annualCashFlow * years + saleProceeds - downPayment;
+
+            // Rough IRR using approximation
+            let irr = 0;
+            if (years > 0 && downPayment > 0) {
+                irr = (Math.pow((totalCashFlows + downPayment) / downPayment, 1 / years) - 1) * 100;
+            }
+
+            const equityMultiple = downPayment > 0 ? totalCashFlows / downPayment : 0;
+
+            // Update UI
+            document.getElementById('cash-on-cash').textContent = cashOnCash.toFixed(1) + '%';
+            document.getElementById('annual-cash-flow').textContent = '$' + Math.round(annualCashFlow).toLocaleString();
+            document.getElementById('irr').textContent = irr.toFixed(1) + '%';
+            document.getElementById('equity-multiple').textContent = equityMultiple.toFixed(2) + 'x';
+
+            // Update chart
+            updateProjectionChart(purchase, annualCashFlow, appreciation, years, exitCap, futureValue);
+
+            // Update sensitivity
+            updateSensitivity(purchase, downPayment, rent, expenses, rate, appreciation, years);
+        }
+
+        function updateProjectionChart(purchase, cashFlow, app, years, exitCap, fv) {
+            const ctx = document.getElementById('projectionChart');
+            if (projectionChart) projectionChart.destroy();
+
+            const labels = ['Year 0', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'];
+            const cashFlows = [0];
+            let cum = 0;
+            for (let y=1; y<=5; y++) {
+                cum += cashFlow;
+                cashFlows.push(cum);
+            }
+
+            projectionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Cumulative Cash Flow',
+                        data: cashFlows,
+                        borderColor: '#6366f1',
+                        tension: 0.3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function updateSensitivity(purchase, down, rent, exp, rate, app, years) {
+            const tbody = document.getElementById('sensitivity-table');
+            tbody.innerHTML = '';
+
+            const rentGrowths = [1,2,3,4,5];
+            const exitCaps = [4.5, 5, 5.5, 6, 6.5];
+
+            exitCaps.forEach(cap => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-700';
+                let cells = `<td class="p-2 font-medium">${cap}%</td>`;
+
+                rentGrowths.forEach(growth => {
+                    // Simplified IRR calc
+                    const adjRent = rent * Math.pow(1 + growth/100, years);
+                    const adjCF = (adjRent * 12 - exp * 12) - (purchase * 0.8 * rate/100); // rough
+                    const fv = purchase * Math.pow(1 + app/100, years);
+                    const sale = fv * (1 - cap/100);
+                    const total = adjCF * years + (sale - purchase * 0.8);
+                    const irrApprox = (Math.pow(total / (purchase * 0.2), 1/years) - 1) * 100;
+                    
+                    cells += `<td class="p-2 ${irrApprox > 12 ? 'text-emerald-400' : irrApprox > 8 ? 'text-yellow-400' : 'text-red-400'}">${irrApprox.toFixed(1)}%</td>`;
+                });
+
+                row.innerHTML = cells;
+                tbody.appendChild(row);
+            });
+        }
+
+        function calculateReturns() {
+            // Triggered by inputs
+            const purchase = parseFloat(document.getElementById('purchase-price').value) || 500000;
+            const downPct = parseFloat(document.getElementById('down-payment').value) || 20;
+            const rate = parseFloat(document.getElementById('interest-rate').value) || 6.5;
+            const term = parseFloat(document.getElementById('loan-term').value) || 30;
+            const rent = parseFloat(document.getElementById('monthly-rent').value) || 3200;
+            const expenses = parseFloat(document.getElementById('monthly-expenses').value) || 1100;
+            const appreciation = parseFloat(document.getElementById('appreciation').value) || 3;
+            const years = parseFloat(document.getElementById('holding-period').value) || 5;
+            const exitCap = parseFloat(document.getElementById('exit-cap').value) || 5.5;
+
+            // Simplified calculations for demo
+            const downPayment = purchase * (downPct / 100);
+            const loan = purchase - downPayment;
+            const monthlyMortgage = loan > 0 ? (loan * (rate/100/12) * Math.pow(1+rate/100/12, term*12)) / (Math.pow(1+rate/100/12, term*12)-1) : 0;
+            const annualCF = (rent * 12) - (expenses * 12) - (monthlyMortgage * 12);
+            const coc = downPayment > 0 ? (annualCF / downPayment) * 100 : 0;
+
+            // Very rough IRR
+            const fv = purchase * Math.pow(1 + appreciation/100, years);
+            const netSale = fv * (1 - exitCap/100) - loan * 0.7; // approx remaining
+            const irr = (Math.pow( (annualCF * years + netSale) / downPayment , 1/years) - 1) * 100;
+
+            document.getElementById('cash-on-cash').textContent = coc.toFixed(1) + '%';
+            document.getElementById('annual-cash-flow').textContent = '$' + Math.round(annualCF).toLocaleString();
+            document.getElementById('irr').textContent = irr.toFixed(1) + '%';
+            document.getElementById('equity-multiple').textContent = ((annualCF * years + netSale) / downPayment).toFixed(2) + 'x';
+
+            updateProjectionChart(annualCF, years);
+            updateSensitivity(purchase, downPayment, rent, expenses, rate, appreciation, years);
+        }
+
+        let projChart = null;
+        function updateProjectionChart(cf, years) {
+            const ctx = document.getElementById('projectionChart');
+            if (projChart) projChart.destroy();
+
+            const dataPoints = [0];
+            for (let i = 1; i <= years; i++) {
+                dataPoints.push(dataPoints[i-1] + cf);
+            }
+
+            projChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: years+1}, (_, i) => 'Y' + i),
+                    datasets: [{ label: 'Cumulative Cash', data: dataPoints, borderColor: '#6366f1' }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        function updateSensitivity(p, dp, r, e, rate, app, y) {
+            const tbody = document.getElementById('sensitivity-table');
+            tbody.innerHTML = '';
+
+            const growths = [1,2,3,4,5];
+            const caps = [4.5,5,5.5,6,6.5];
+
+            caps.forEach(cap => {
+                let html = `<td class="p-2 font-medium">${cap}%</td>`;
+                growths.forEach(g => {
+                    const adjCF = (r * 12 * Math.pow(1+g/100, y) - e*12) - (p*0.8 * rate/100);
+                    const fv = p * Math.pow(1+app/100, y);
+                    const irr = (Math.pow( (adjCF * y + fv*(1-cap/100)) / (p*0.2) , 1/y ) -1 ) * 100;
+                    html += `<td class="p-2">${irr.toFixed(1)}%</td>`;
+                });
+                const tr = document.createElement('tr');
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function resetCalculator() {
+            location.reload();
+        }
+
+        function init() {
+            // Set initial values and calculate
+            document.getElementById('purchase-price').value = 500000;
+            document.getElementById('down-payment').value = 20;
+            document.getElementById('interest-rate').value = 6.5;
+            document.getElementById('loan-term').value = 30;
+            document.getElementById('monthly-rent').value = 3200;
+            document.getElementById('monthly-expenses').value = 1100;
+            document.getElementById('appreciation').value = 3;
+            document.getElementById('holding-period').value = 5;
+            document.getElementById('exit-cap').value = 5.5;
+
+            calculateReturns();
+
+            // Listen for changes
+            document.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', calculateReturns);
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

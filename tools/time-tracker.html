@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Tracker • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .time-display { font-variant-numeric: tabular-nums; }
+        .log-row:hover { background: #0f172a; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="px-6 pt-6 pb-3 border-b border-slate-800 flex items-center justify-between no-print">
+            <div class="flex items-center gap-x-4">
+                <a href="../index.html" class="flex items-center gap-x-2 text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Portfolio</span>
+                </a>
+                <div>
+                    <h1 class="font-semibold text-2xl tracking-tight">Time Tracker</h1>
+                    <p class="text-xs text-slate-400 -mt-0.5">Track time on tasks. See where your day goes.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-x-2">
+                <a href="time-tracker-standalone.html" download="time-tracker.html"
+                   class="px-3 py-1.5 text-xs font-semibold border border-blue-600 hover:bg-blue-900/30 text-blue-400 rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-download"></i> <span>Download Offline</span>
+                </a>
+                <button onclick="showAddTaskModal()" 
+                        class="px-4 py-1.5 bg-white text-slate-900 font-semibold text-sm rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-plus"></i> <span>New Task</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Warning -->
+        <div class="mx-6 mt-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-2xl text-yellow-200 text-xs no-print">
+            <i class="fa-solid fa-exclamation-triangle mr-1.5"></i>
+            <strong>Public demo:</strong> This is public. Download the standalone version for real personal time tracking.
+        </div>
+
+        <div class="p-6">
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4">
+                    <div class="text-xs text-slate-400">Today's Total</div>
+                    <div id="today-total" class="text-3xl font-semibold tracking-tighter time-display">00:00:00</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4">
+                    <div class="text-xs text-slate-400">This Week</div>
+                    <div id="week-total" class="text-3xl font-semibold tracking-tighter time-display">00:00:00</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4">
+                    <div class="text-xs text-slate-400">All Time</div>
+                    <div id="all-time-total" class="text-3xl font-semibold tracking-tighter time-display">00:00:00</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4">
+                    <div class="text-xs text-slate-400">Active Tasks</div>
+                    <div id="active-tasks" class="text-3xl font-semibold tracking-tighter">0</div>
+                </div>
+            </div>
+
+            <!-- Tasks -->
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="font-semibold">Tasks</div>
+                    <div class="text-xs text-slate-400">Click Start to begin tracking</div>
+                </div>
+                <div id="tasks-list" class="space-y-3"></div>
+            </div>
+
+            <!-- Recent Logs -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <div class="font-semibold">Recent Sessions</div>
+                    <button onclick="exportCSV()" class="text-xs px-3 py-1 border border-slate-700 rounded-xl hover:bg-slate-800">
+                        <i class="fa-solid fa-file-export mr-1"></i> Export CSV
+                    </button>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden">
+                    <table class="w-full text-sm">
+                        <thead class="bg-slate-800 text-xs text-slate-400">
+                            <tr>
+                                <th class="text-left px-4 py-2">Date</th>
+                                <th class="text-left px-4 py-2">Task</th>
+                                <th class="text-right px-4 py-2">Duration</th>
+                                <th class="px-4 py-2 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-body" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="add-modal" onclick="if (event.target.id === 'add-modal') hideAddModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div onclick="event.stopImmediatePropagation()" class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-6">
+            <h3 class="font-semibold text-xl mb-4">New Task</h3>
+            <input id="task-name" type="text" placeholder="Task name (e.g. Client project)" 
+                   class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl mb-4 focus:outline-none focus:border-blue-500">
+            <div class="flex gap-x-3">
+                <button onclick="addTask()" class="flex-1 py-2.5 bg-white text-slate-900 font-semibold rounded-2xl">Add Task</button>
+                <button onclick="hideAddModal()" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 font-semibold rounded-2xl">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let activeTimer = null; // { taskId, startTime, intervalId }
+        let logs = []; // { id, taskId, taskName, start, end, duration }
+
+        function loadData() {
+            const savedTasks = localStorage.getItem('time_tracker_tasks');
+            const savedLogs = localStorage.getItem('time_tracker_logs');
+
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            }
+            if (savedLogs) {
+                logs = JSON.parse(savedLogs);
+            }
+
+            // Sample data only on first ever use (no saved tasks)
+            if (!savedTasks) {
+                tasks = [
+                    { id: 't1', name: 'Client website work' },
+                    { id: 't2', name: 'Email & admin' },
+                    { id: 't3', name: 'Learning / courses' }
+                ];
+                const oldDate = Date.now() - 1000 * 60 * 60 * 24 * 365; // 1 year ago so new logs appear in "today"
+                logs = [
+                    { id: 'l1', taskId: 't1', taskName: 'Client website work', start: oldDate - 1000*60*90, end: oldDate - 1000*60*30, duration: 3600 },
+                    { id: 'l2', taskId: 't2', taskName: 'Email & admin', start: oldDate - 1000*60*130, end: oldDate - 1000*60*100, duration: 1800 }
+                ];
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('time_tracker_tasks', JSON.stringify(tasks));
+            localStorage.setItem('time_tracker_logs', JSON.stringify(logs));
+        }
+
+        function formatDuration(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function getCurrentElapsed() {
+            if (!activeTimer) return 0;
+            if (activeTimer.isPaused) {
+                return activeTimer.pausedElapsed || 0;
+            }
+            const segment = Math.floor((Date.now() - activeTimer.startTime) / 1000);
+            return (activeTimer.pausedElapsed || 0) + segment;
+        }
+
+        function getTodayStart() {
+            const d = new Date();
+            d.setHours(0,0,0,0);
+            return d.getTime();
+        }
+
+        function getWeekStart() {
+            const d = new Date();
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday
+            d.setDate(diff);
+            d.setHours(0,0,0,0);
+            return d.getTime();
+        }
+
+        function updateStats() {
+            const now = Date.now();
+            let today = 0, week = 0, all = 0;
+
+            logs.forEach(log => {
+                all += log.duration;
+                if (log.start >= getTodayStart()) today += log.duration;
+                if (log.start >= getWeekStart()) week += log.duration;
+            });
+
+            // Add currently running (or paused) time for the active session
+            if (activeTimer) {
+                const elapsed = getCurrentElapsed();
+                today += elapsed;
+                week += elapsed;
+                all += elapsed;
+            }
+
+            document.getElementById('today-total').textContent = formatDuration(today);
+            document.getElementById('week-total').textContent = formatDuration(week);
+            document.getElementById('all-time-total').textContent = formatDuration(all);
+            document.getElementById('active-tasks').textContent = tasks.length;
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('tasks-list');
+            container.innerHTML = '';
+
+            if (tasks.length === 0) {
+                container.innerHTML = `<div class="text-slate-400 text-sm p-4 bg-slate-900 border border-slate-800 rounded-3xl">No tasks yet. Add one above.</div>`;
+                return;
+            }
+
+            tasks.forEach(task => {
+                const isActive = activeTimer && activeTimer.taskId === task.id;
+                let elapsed = 0;
+                if (isActive) {
+                    elapsed = getCurrentElapsed();
+                }
+
+                // Calculate total logged for this task
+                const taskLogs = logs.filter(l => l.taskId === task.id);
+                const totalLogged = taskLogs.reduce((sum, l) => sum + l.duration, 0) + (isActive ? elapsed : 0);
+
+                const div = document.createElement('div');
+                div.className = `bg-slate-900 border border-slate-800 rounded-3xl p-4 flex items-center justify-between ${isActive ? 'ring-1 ring-blue-500' : ''}`;
+
+                div.innerHTML = `
+                    <div class="flex-1">
+                        <div class="font-semibold">${task.name}</div>
+                        <div class="text-xs text-slate-400">Total: ${formatDuration(totalLogged)}</div>
+                    </div>
+                    <div class="flex items-center gap-x-2">
+                        ${isActive ? `
+                            <div class="px-3 py-1 bg-blue-900/50 text-blue-400 rounded-xl text-sm font-mono time-display" id="live-timer-${task.id}">
+                                ${formatDuration(elapsed)}
+                            </div>
+                            ${activeTimer.isPaused ? `
+                                <button onclick="startTimer('${task.id}')" class="px-3 py-1.5 text-xs bg-green-600 hover:bg-green-500 text-white rounded-xl">Resume</button>
+                            ` : `
+                                <button onclick="pauseTimer()" class="px-3 py-1.5 text-xs bg-yellow-600 hover:bg-yellow-500 text-white rounded-xl">Pause</button>
+                            `}
+                            <button onclick="stopTimer()" class="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl">Stop &amp; Log</button>
+                        ` : `
+                            <button onclick="startTimer('${task.id}')" class="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded-xl flex items-center gap-x-1.5">
+                                <i class="fa-solid fa-play"></i> <span>Start</span>
+                            </button>
+                        `}
+                        <button onclick="deleteTask('${task.id}', event)" class="px-2 py-1 text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('logs-body');
+            tbody.innerHTML = '';
+
+            const sortedLogs = [...logs].sort((a, b) => b.start - a.start).slice(0, 12);
+
+            if (sortedLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-3 text-slate-400 text-sm">No sessions logged yet.</td></tr>`;
+                return;
+            }
+
+            sortedLogs.forEach(log => {
+                const row = document.createElement('tr');
+                row.className = 'log-row';
+                const date = new Date(log.start).toLocaleDateString(undefined, {month:'short', day:'numeric'});
+                row.innerHTML = `
+                    <td class="px-4 py-2.5 text-xs text-slate-400">${date}</td>
+                    <td class="px-4 py-2.5">${log.taskName}</td>
+                    <td class="px-4 py-2.5 text-right font-mono text-sm time-display">${formatDuration(log.duration)}</td>
+                    <td class="px-4 py-2.5"><button onclick="deleteLog('${log.id}')" class="text-red-400 hover:text-red-300 text-xs px-1">×</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function startTimer(taskId) {
+            if (activeTimer) {
+                if (activeTimer.taskId === taskId) {
+                    // resume the current session
+                    activeTimer.isPaused = false;
+                    activeTimer.startTime = Date.now();
+                    if (!activeTimer.pausedElapsed) activeTimer.pausedElapsed = 0;
+                    activeTimer.intervalId = setInterval(() => {
+                        updateLiveTimer();
+                    }, 1000);
+                    renderTasks();
+                    updateStats();
+                    return;
+                } else {
+                    stopTimer(false); // auto stop previous different task without logging
+                }
+            }
+
+            activeTimer = {
+                taskId: taskId,
+                startTime: Date.now(),
+                pausedElapsed: 0,
+                isPaused: false,
+                sessionStart: Date.now(),
+                intervalId: setInterval(() => {
+                    updateLiveTimer();
+                }, 1000)
+            };
+
+            renderTasks();
+            updateStats();
+        }
+
+        function pauseTimer() {
+            if (!activeTimer) return;
+            const segment = Math.floor((Date.now() - activeTimer.startTime) / 1000);
+            activeTimer.pausedElapsed = (activeTimer.pausedElapsed || 0) + segment;
+            activeTimer.isPaused = true;
+            clearInterval(activeTimer.intervalId);
+            activeTimer.intervalId = null;
+            renderTasks();
+            updateStats();
+        }
+
+        function stopTimer(logIt = true) {
+            if (!activeTimer) return;
+
+            clearInterval(activeTimer.intervalId);
+
+            if (logIt) {
+                const duration = getCurrentElapsed();
+                const task = tasks.find(t => t.id === activeTimer.taskId);
+                const endTime = Date.now();
+                logs.push({
+                    id: 'log-' + Date.now(),
+                    taskId: activeTimer.taskId,
+                    taskName: task ? task.name : 'Unknown',
+                    start: activeTimer.sessionStart || activeTimer.startTime,
+                    end: endTime,
+                    duration: duration || 0
+                });
+                saveData();
+                // Flash the logs table to indicate commit
+                const logsTbody = document.getElementById('logs-body');
+                if (logsTbody) {
+                    logsTbody.style.transition = 'background-color 0.2s';
+                    logsTbody.style.backgroundColor = '#334155';
+                    setTimeout(() => {
+                        if (logsTbody) logsTbody.style.backgroundColor = '';
+                    }, 600);
+                }
+            }
+
+            activeTimer = null;
+            renderTasks();
+            renderLogs();
+            updateStats();
+        }
+
+        function updateLiveTimer() {
+            if (!activeTimer) return;
+            const elapsed = getCurrentElapsed();
+            const el = document.getElementById(`live-timer-${activeTimer.taskId}`);
+            if (el) el.textContent = formatDuration(elapsed);
+            updateStats();
+        }
+
+        function addTask() {
+            const name = document.getElementById('task-name').value.trim();
+            if (!name) return;
+            tasks.push({ id: 'task-' + Date.now(), name });
+            saveData();
+            hideAddModal();
+            renderTasks();
+            updateStats();
+        }
+
+        function showAddTaskModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+            document.getElementById('add-modal').classList.add('flex');
+            setTimeout(() => document.getElementById('task-name').focus(), 50);
+        }
+
+        function hideAddModal() {
+            document.getElementById('add-modal').classList.remove('flex');
+            document.getElementById('add-modal').classList.add('hidden');
+            document.getElementById('task-name').value = '';
+        }
+
+        function deleteTask(id, e) {
+            e.stopImmediatePropagation();
+            if (!confirm('Delete this task and its logs?')) return;
+            tasks = tasks.filter(t => t.id !== id);
+            logs = logs.filter(l => l.taskId !== id);
+            if (activeTimer && activeTimer.taskId === id) {
+                clearInterval(activeTimer.intervalId);
+                activeTimer = null;
+            }
+            saveData();
+            renderTasks();
+            renderLogs();
+            updateStats();
+        }
+
+        function deleteLog(id) {
+            if (!confirm('Delete this session?')) return;
+            logs = logs.filter(l => l.id !== id);
+            saveData();
+            renderLogs();
+            updateStats();
+        }
+
+        function exportCSV() {
+            let csv = 'Date,Task,Duration (seconds),Duration (formatted)\n';
+            logs.forEach(log => {
+                const date = new Date(log.start).toISOString().split('T')[0];
+                csv += `${date},"${log.taskName}",${log.duration},${formatDuration(log.duration)}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'time-logs.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function init() {
+            loadData();
+
+            // Default sample if needed already handled
+            renderTasks();
+            renderLogs();
+            updateStats();
+
+            // Keyboard support: press space to start/stop last used? Simple: nothing fancy
+            document.addEventListener('keydown', function(e) {
+                if (e.key === ' ' && document.activeElement.tagName === 'BODY') {
+                    e.preventDefault();
+                    if (activeTimer) {
+                        stopTimer();
+                    } else if (tasks.length > 0) {
+                        startTimer(tasks[0].id);
+                    }
+                }
+            });
+
+            console.log('%c[Time Tracker] Ready. Start timers, they persist in standalone.', 'color:#64748b');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

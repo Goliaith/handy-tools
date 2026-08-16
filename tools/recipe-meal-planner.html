@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe &amp; Meal Planner • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .recipe-card, .day-card {
+            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        .shopping-item.checked {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+        .modal {
+            animation: fadeIn 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="px-6 pt-6 pb-3 border-b border-slate-800 flex items-center justify-between no-print">
+            <div class="flex items-center gap-x-4">
+                <a href="../index.html" class="flex items-center gap-x-2 text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Portfolio</span>
+                </a>
+                <div>
+                    <h1 class="font-semibold text-2xl tracking-tight">Recipe &amp; Meal Planner</h1>
+                    <p class="text-xs text-slate-400 -mt-0.5">Save recipes, plan your week, auto-generate shopping lists.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-x-2">
+                <a href="recipe-meal-planner-standalone.html" download="recipe-meal-planner.html"
+                   class="px-3 py-1.5 text-xs font-semibold border border-emerald-600 hover:bg-emerald-900/30 text-emerald-400 rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-download"></i> <span>Download Offline</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Public Warning -->
+        <div class="mx-6 mt-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-2xl text-yellow-200 text-xs no-print">
+            <i class="fa-solid fa-exclamation-triangle mr-1.5"></i>
+            <strong>Public demo:</strong> This is public. Download the standalone version for your real recipes and meal plans.
+        </div>
+
+        <div class="p-6">
+            <!-- Quick Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4">
+                    <div class="text-xs text-slate-400">Saved Recipes</div>
+                    <div id="recipe-count" class="text-3xl font-semibold tracking-tighter">0</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4">
+                    <div class="text-xs text-slate-400">Planned Meals</div>
+                    <div id="planned-count" class="text-3xl font-semibold tracking-tighter">0</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4">
+                    <div class="text-xs text-slate-400">Shopping Items</div>
+                    <div id="shopping-count" class="text-3xl font-semibold tracking-tighter">0</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 flex items-center justify-center">
+                    <button onclick="clearAllData()" class="px-4 py-2 text-xs bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-2xl flex items-center gap-x-2">
+                        <i class="fa-solid fa-trash"></i> <span>Clear Everything</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Recipes -->
+                <div class="lg:col-span-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-semibold flex items-center gap-x-2">
+                            <i class="fa-solid fa-book"></i> 
+                            <span>My Recipes</span>
+                        </div>
+                        <button onclick="showRecipeModal()" class="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 rounded-2xl flex items-center gap-x-2">
+                            <i class="fa-solid fa-plus"></i> <span>Add Recipe</span>
+                        </button>
+                    </div>
+                    <div id="recipes-list" class="space-y-3 max-h-[520px] overflow-auto pr-1"></div>
+                </div>
+
+                <!-- Weekly Planner -->
+                <div class="lg:col-span-7">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-semibold flex items-center gap-x-2">
+                            <i class="fa-solid fa-calendar-week"></i> 
+                            <span>Weekly Meal Planner</span>
+                        </div>
+                        <button onclick="clearPlan()" class="px-3 py-1 text-xs border border-slate-700 hover:bg-slate-800 rounded-xl">Clear Plan</button>
+                    </div>
+                    <div id="planner" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-3"></div>
+                </div>
+
+                <!-- Shopping List -->
+                <div class="lg:col-span-12">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-semibold flex items-center gap-x-2">
+                            <i class="fa-solid fa-shopping-basket"></i> 
+                            <span>Shopping List <span id="shopping-count-header" class="text-xs text-slate-400">(0 items)</span></span>
+                        </div>
+                        <div class="flex gap-x-2">
+                            <button onclick="copyShoppingList()" class="px-3 py-1 text-xs border border-slate-700 hover:bg-slate-800 rounded-xl flex items-center gap-x-2">
+                                <i class="fa-solid fa-copy"></i> <span>Copy</span>
+                            </button>
+                            <button onclick="exportShoppingList()" class="px-3 py-1 text-xs border border-slate-700 hover:bg-slate-800 rounded-xl flex items-center gap-x-2">
+                                <i class="fa-solid fa-file-export"></i> <span>Export</span>
+                            </button>
+                            <button onclick="addCustomShoppingItem()" class="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-500 rounded-xl flex items-center gap-x-2">
+                                <i class="fa-solid fa-plus"></i> <span>Add Item</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4">
+                        <div id="shopping-list" class="space-y-1 max-h-64 overflow-auto"></div>
+                        <div id="shopping-empty" class="text-sm text-slate-400 py-4 text-center hidden">Plan some meals to generate a shopping list.</div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-2">Check off items as you shop. Add custom items for things not in your recipes.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Recipe Modal -->
+    <div id="recipe-modal" onclick="if (event.target.id === 'recipe-modal') hideRecipeModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div onclick="event.stopImmediatePropagation()" class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-3xl p-6">
+            <h3 id="modal-title" class="font-semibold text-xl mb-4">Add Recipe</h3>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs text-slate-400">Recipe Name</label>
+                    <input id="recipe-name" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl mt-1 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs text-slate-400">Prep Time (minutes)</label>
+                        <input id="recipe-time" type="number" value="30" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl mt-1 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400">Ingredients (one per line)</label>
+                    <textarea id="recipe-ingredients" rows="4" placeholder="2 cups rice&#10;1 lb chicken&#10;..." class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl mt-1 focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-400">Instructions</label>
+                    <textarea id="recipe-instructions" rows="5" placeholder="Step 1: ..." class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl mt-1 focus:outline-none focus:border-emerald-500"></textarea>
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-x-3">
+                <button onclick="saveRecipe()" id="save-recipe-btn" class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-500 font-semibold rounded-2xl">Save Recipe</button>
+                <button onclick="hideRecipeModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 font-semibold rounded-2xl">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let recipes = [];
+        let plan = {}; // { "Monday": ["recipeId1", "recipeId2"], ... }
+        let currentEditId = null;
+
+        const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        function loadData() {
+            const savedRecipes = localStorage.getItem('recipe_planner_recipes');
+            const savedPlan = localStorage.getItem('recipe_planner_plan');
+            
+            if (savedRecipes) recipes = JSON.parse(savedRecipes);
+            if (savedPlan) plan = JSON.parse(savedPlan);
+
+            // Sample data on first load
+            if (recipes.length === 0) {
+                recipes = [
+                    {
+                        id: 'r1',
+                        name: 'Spaghetti Bolognese',
+                        time: 45,
+                        ingredients: ['400g spaghetti', '500g ground beef', '1 can tomatoes', '1 onion', '2 garlic cloves', 'Olive oil'],
+                        instructions: '1. Brown the beef.\n2. Add chopped onion and garlic.\n3. Pour in tomatoes and simmer.\n4. Cook pasta and combine.'
+                    },
+                    {
+                        id: 'r2',
+                        name: 'Chicken Stir Fry',
+                        time: 25,
+                        ingredients: ['300g chicken breast', 'Mixed vegetables', 'Soy sauce', 'Ginger', 'Garlic', 'Rice'],
+                        instructions: '1. Cut chicken and stir fry.\n2. Add veggies and sauce.\n3. Serve over rice.'
+                    },
+                    {
+                        id: 'r3',
+                        name: 'Veggie Salad Bowl',
+                        time: 15,
+                        ingredients: ['Lettuce', 'Cherry tomatoes', 'Cucumber', 'Avocado', 'Feta cheese', 'Olive oil'],
+                        instructions: '1. Chop all veggies.\n2. Toss with dressing.\n3. Top with feta.'
+                    }
+                ];
+                plan = {
+                    'Monday': ['r1'],
+                    'Tuesday': ['r2'],
+                    'Wednesday': [],
+                    'Thursday': ['r3'],
+                    'Friday': ['r1', 'r3'],
+                    'Saturday': [],
+                    'Sunday': ['r2']
+                };
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('recipe_planner_recipes', JSON.stringify(recipes));
+            localStorage.setItem('recipe_planner_plan', JSON.stringify(plan));
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('recipe-count').textContent = recipes.length;
+            
+            let planned = 0;
+            Object.values(plan).forEach(list => planned += list.length);
+            document.getElementById('planned-count').textContent = planned;
+
+            const shop = generateShoppingList();
+            document.getElementById('shopping-count').textContent = shop.length;
+            document.getElementById('shopping-count-header').textContent = `(${shop.length} items)`;
+        }
+
+        function renderRecipes() {
+            const container = document.getElementById('recipes-list');
+            container.innerHTML = '';
+
+            if (recipes.length === 0) {
+                container.innerHTML = `<div class="p-6 bg-slate-900 border border-slate-800 rounded-3xl text-center text-sm text-slate-400">No recipes yet. Add your first one!</div>`;
+                return;
+            }
+
+            recipes.forEach(recipe => {
+                const div = document.createElement('div');
+                div.className = 'recipe-card bg-slate-900 border border-slate-800 rounded-3xl p-4';
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="font-semibold">${recipe.name}</div>
+                            <div class="text-xs text-emerald-400 mt-0.5">${recipe.time} min</div>
+                        </div>
+                        <div class="flex gap-x-1">
+                            <button onclick="editRecipe('${recipe.id}')" class="text-slate-400 hover:text-white px-1"><i class="fa-solid fa-edit text-xs"></i></button>
+                            <button onclick="deleteRecipe('${recipe.id}')" class="text-red-400 hover:text-red-300 px-1"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-xs text-slate-400">
+                        ${recipe.ingredients.slice(0, 3).join(', ')}${recipe.ingredients.length > 3 ? '...' : ''}
+                    </div>
+                    <div class="mt-3 flex gap-2">
+                        <button onclick="addToDayPrompt('${recipe.id}')" class="flex-1 px-2 py-1 text-[10px] bg-emerald-700 hover:bg-emerald-600 rounded-xl">Add to Day</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderPlanner() {
+            const container = document.getElementById('planner');
+            container.innerHTML = '';
+
+            DAYS.forEach(day => {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'day-card bg-slate-900 border border-slate-800 rounded-3xl p-3 min-h-[140px]';
+
+                let mealsHTML = '';
+                const dayMeals = plan[day] || [];
+
+                if (dayMeals.length === 0) {
+                    mealsHTML = `<div class="text-xs text-slate-400 italic">No meals planned</div>`;
+                } else {
+                    dayMeals.forEach((rid, idx) => {
+                        const recipe = recipes.find(r => r.id === rid);
+                        if (!recipe) return;
+                        mealsHTML += `
+                            <div class="flex items-center justify-between bg-slate-800 rounded-xl px-2 py-1 mb-1 text-xs">
+                                <span class="truncate">${recipe.name}</span>
+                                <button onclick="removeFromPlan('${day}', ${idx})" class="text-red-400 hover:text-red-300 ml-1">×</button>
+                            </div>
+                        `;
+                    });
+                }
+
+                dayDiv.innerHTML = `
+                    <div class="font-semibold text-sm mb-2 flex items-center justify-between">
+                        <span>${day}</span>
+                        <span class="text-[10px] text-slate-500">${dayMeals.length}</span>
+                    </div>
+                    <div class="space-y-1 mb-2">${mealsHTML}</div>
+                    <button onclick="addToDayPromptFromDay('${day}')" class="w-full mt-1 text-[10px] px-2 py-1 border border-slate-700 hover:bg-slate-800 rounded-xl flex items-center justify-center gap-x-1">
+                        <i class="fa-solid fa-plus text-[9px]"></i> <span>Add</span>
+                    </button>
+                `;
+                container.appendChild(dayDiv);
+            });
+        }
+
+        function generateShoppingList() {
+            const allIngredients = [];
+            Object.values(plan).flat().forEach(rid => {
+                const recipe = recipes.find(r => r.id === rid);
+                if (recipe) {
+                    allIngredients.push(...recipe.ingredients);
+                }
+            });
+
+            // Simple aggregation: count occurrences
+            const countMap = {};
+            allIngredients.forEach(item => {
+                const key = item.trim().toLowerCase();
+                if (!countMap[key]) countMap[key] = { original: item.trim(), count: 0 };
+                countMap[key].count++;
+            });
+
+            return Object.values(countMap).map(entry => ({
+                text: entry.count > 1 ? `${entry.original} (x${entry.count})` : entry.original,
+                checked: false
+            }));
+        }
+
+        let shoppingList = [];
+
+        function renderShoppingList() {
+            const container = document.getElementById('shopping-list');
+            const empty = document.getElementById('shopping-empty');
+            container.innerHTML = '';
+
+            shoppingList = generateShoppingList();
+
+            if (shoppingList.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            shoppingList.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = `shopping-item flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-800 cursor-pointer ${item.checked ? 'checked' : ''}`;
+                div.innerHTML = `
+                    <div class="flex items-center gap-x-2">
+                        <input type="checkbox" ${item.checked ? 'checked' : ''} class="accent-emerald-500">
+                        <span class="text-sm">${item.text}</span>
+                    </div>
+                    <button onclick="removeShoppingItem(${idx}, event)" class="text-red-400 hover:text-red-300 px-2 text-xs">×</button>
+                `;
+
+                div.querySelector('input').addEventListener('change', (e) => {
+                    shoppingList[idx].checked = e.target.checked;
+                    div.classList.toggle('checked', e.target.checked);
+                });
+
+                container.appendChild(div);
+            });
+        }
+
+        function removeShoppingItem(idx, e) {
+            e.stopImmediatePropagation();
+            // Remove from current generated list (for this session)
+            shoppingList.splice(idx, 1);
+            renderShoppingList();
+        }
+
+        function addCustomShoppingItem() {
+            const item = prompt('Add custom shopping item:');
+            if (item && item.trim()) {
+                shoppingList.push({ text: item.trim(), checked: false });
+                renderShoppingList();
+            }
+        }
+
+        function addToDayPrompt(recipeId) {
+            const day = prompt('Add to which day? (e.g. Monday)');
+            if (!day) return;
+            const normalized = DAYS.find(d => d.toLowerCase() === day.toLowerCase());
+            if (!normalized) {
+                alert('Please use a valid day name like Monday.');
+                return;
+            }
+            if (!plan[normalized]) plan[normalized] = [];
+            if (!plan[normalized].includes(recipeId)) {
+                plan[normalized].push(recipeId);
+            }
+            saveData();
+            renderPlanner();
+            renderShoppingList();
+        }
+
+        function addToDayPromptFromDay(day) {
+            if (recipes.length === 0) {
+                alert('Add some recipes first!');
+                return;
+            }
+            const select = document.createElement('select');
+            // Simple prompt with options
+            let options = 'Choose a recipe to add:\n';
+            recipes.forEach((r, i) => {
+                options += `${i+1}. ${r.name}\n`;
+            });
+            const choice = prompt(options + '\nEnter number:');
+            if (!choice) return;
+            const idx = parseInt(choice) - 1;
+            if (idx >= 0 && idx < recipes.length) {
+                const rid = recipes[idx].id;
+                if (!plan[day]) plan[day] = [];
+                if (!plan[day].includes(rid)) plan[day].push(rid);
+                saveData();
+                renderPlanner();
+                renderShoppingList();
+            }
+        }
+
+        function removeFromPlan(day, idx) {
+            if (!plan[day]) return;
+            plan[day].splice(idx, 1);
+            saveData();
+            renderPlanner();
+            renderShoppingList();
+        }
+
+        function clearPlan() {
+            if (!confirm('Clear the entire weekly plan?')) return;
+            plan = {};
+            DAYS.forEach(d => plan[d] = []);
+            saveData();
+            renderPlanner();
+            renderShoppingList();
+        }
+
+        function showRecipeModal(recipe = null) {
+            currentEditId = recipe ? recipe.id : null;
+            document.getElementById('modal-title').textContent = recipe ? 'Edit Recipe' : 'Add New Recipe';
+            document.getElementById('save-recipe-btn').textContent = recipe ? 'Update Recipe' : 'Save Recipe';
+
+            document.getElementById('recipe-name').value = recipe ? recipe.name : '';
+            document.getElementById('recipe-time').value = recipe ? recipe.time : 30;
+            document.getElementById('recipe-ingredients').value = recipe ? recipe.ingredients.join('\n') : '';
+            document.getElementById('recipe-instructions').value = recipe ? recipe.instructions : '';
+
+            document.getElementById('recipe-modal').classList.remove('hidden');
+            document.getElementById('recipe-modal').classList.add('flex');
+        }
+
+        function hideRecipeModal() {
+            document.getElementById('recipe-modal').classList.remove('flex');
+            document.getElementById('recipe-modal').classList.add('hidden');
+            currentEditId = null;
+        }
+
+        function saveRecipe() {
+            const name = document.getElementById('recipe-name').value.trim();
+            if (!name) {
+                alert('Recipe name is required.');
+                return;
+            }
+
+            const time = parseInt(document.getElementById('recipe-time').value) || 0;
+            const ingredientsText = document.getElementById('recipe-ingredients').value.trim();
+            const ingredients = ingredientsText ? ingredientsText.split('\n').map(i => i.trim()).filter(Boolean) : [];
+            const instructions = document.getElementById('recipe-instructions').value.trim();
+
+            if (currentEditId) {
+                // Edit existing
+                const idx = recipes.findIndex(r => r.id === currentEditId);
+                if (idx !== -1) {
+                    recipes[idx] = {
+                        ...recipes[idx],
+                        name,
+                        time,
+                        ingredients,
+                        instructions
+                    };
+                }
+            } else {
+                // New
+                recipes.push({
+                    id: 'r' + Date.now(),
+                    name,
+                    time,
+                    ingredients,
+                    instructions
+                });
+            }
+
+            saveData();
+            hideRecipeModal();
+            renderRecipes();
+            renderPlanner();
+            renderShoppingList();
+        }
+
+        function editRecipe(id) {
+            const recipe = recipes.find(r => r.id === id);
+            if (recipe) showRecipeModal(recipe);
+        }
+
+        function deleteRecipe(id) {
+            if (!confirm('Delete this recipe? It will be removed from your plan too.')) return;
+            
+            recipes = recipes.filter(r => r.id !== id);
+            
+            // Remove from plan
+            Object.keys(plan).forEach(day => {
+                plan[day] = (plan[day] || []).filter(rid => rid !== id);
+            });
+
+            saveData();
+            renderRecipes();
+            renderPlanner();
+            renderShoppingList();
+        }
+
+        function copyShoppingList() {
+            const items = shoppingList.map(i => (i.checked ? '☑ ' : '☐ ') + i.text).join('\n');
+            if (!items) return alert('No items in list.');
+            navigator.clipboard.writeText(items).then(() => {
+                alert('Shopping list copied to clipboard!');
+            }).catch(() => {
+                prompt('Copy this:', items);
+            });
+        }
+
+        function exportShoppingList() {
+            const items = shoppingList.map(i => i.text).join('\n');
+            if (!items) return alert('Shopping list is empty.');
+            const blob = new Blob([items], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'shopping-list.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearAllData() {
+            if (!confirm('This will delete all recipes and the meal plan. Continue?')) return;
+            localStorage.removeItem('recipe_planner_recipes');
+            localStorage.removeItem('recipe_planner_plan');
+            location.reload();
+        }
+
+        function init() {
+            loadData();
+
+            // Ensure plan has all days
+            DAYS.forEach(d => {
+                if (!plan[d]) plan[d] = [];
+            });
+
+            renderRecipes();
+            renderPlanner();
+            renderShoppingList();
+            updateStats();
+
+            console.log('%c[Recipe & Meal Planner] Tool ready.', 'color:#64748b');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

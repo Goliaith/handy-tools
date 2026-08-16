@@ -1,0 +1,5 @@
+# Netlify _redirects (minimal for this static multi-page site)
+# No catch-all redirect is needed — Netlify serves /tools/*.html and index.html directly.
+
+# Example if you ever want a custom 404:
+# /*    /index.html   404

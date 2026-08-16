@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Budget Tracker • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .money { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-6xl mx-auto">
+        <div class="px-6 pt-6 pb-3 border-b border-slate-800 flex items-center justify-between no-print">
+            <div class="flex items-center gap-x-4">
+                <a href="../index.html" class="flex items-center gap-x-2 text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-arrow-left"></i> <span>Back to Portfolio</span>
+                </a>
+                <div>
+                    <h1 class="font-semibold text-2xl tracking-tight">Personal Budget Tracker</h1>
+                    <p class="text-xs text-slate-400 -mt-0.5">Know exactly where your money goes</p>
+                </div>
+            </div>
+            <div class="flex gap-x-2">
+                <a href="personal-budget-tracker-standalone.html" download="personal-budget-tracker.html"
+                   class="px-3 py-1.5 text-xs font-semibold border border-emerald-600 hover:bg-emerald-900/30 text-emerald-400 rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-download"></i> <span>Download Offline</span>
+                </a>
+                <button onclick="showAddModal('income')" class="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-500 rounded-2xl font-semibold flex items-center gap-x-2">
+                    <i class="fa-solid fa-plus"></i> <span>Income</span>
+                </button>
+                <button onclick="showAddModal('expense')" class="px-3 py-1.5 text-xs bg-rose-600 hover:bg-rose-500 rounded-2xl font-semibold flex items-center gap-x-2">
+                    <i class="fa-solid fa-plus"></i> <span>Expense</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="mx-6 mt-4 p-3 bg-yellow-900/30 border border-yellow-700 rounded-2xl text-yellow-200 text-xs no-print">
+            <i class="fa-solid fa-exclamation-triangle mr-1.5"></i>
+            <strong>Public demo only.</strong> Use the downloaded standalone version for real finances.
+        </div>
+
+        <div class="p-6">
+            <!-- KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                    <div class="text-xs text-emerald-400">Total Income</div>
+                    <div id="total-income" class="text-4xl font-semibold tracking-tighter text-emerald-400 money">$0</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                    <div class="text-xs text-rose-400">Total Expenses</div>
+                    <div id="total-expenses" class="text-4xl font-semibold tracking-tighter text-rose-400 money">$0</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                    <div class="text-xs text-slate-400">Net Balance</div>
+                    <div id="net-balance" class="text-4xl font-semibold tracking-tighter money">$0</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Breakdown -->
+                <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-semibold">Spending by Category</div>
+                    </div>
+                    <div id="category-breakdown" class="space-y-3 text-sm"></div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-3xl p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="font-semibold">Recent Transactions</div>
+                        <div class="flex gap-x-2 text-xs">
+                            <button onclick="filterTransactions('all')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700 active-filter" id="filter-all">All</button>
+                            <button onclick="filterTransactions('income')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700" id="filter-income">Income</button>
+                            <button onclick="filterTransactions('expense')" class="px-3 py-1 rounded-full bg-slate-800 hover:bg-slate-700" id="filter-expense">Expenses</button>
+                            <button onclick="exportCSV()" class="px-3 py-1 rounded-full border border-slate-700 hover:bg-slate-800"><i class="fa-solid fa-file-csv mr-1"></i> CSV</button>
+                        </div>
+                    </div>
+                    <div class="max-h-[360px] overflow-auto text-sm">
+                        <table class="w-full">
+                            <thead class="text-xs text-slate-400">
+                                <tr><th class="text-left py-1">Date</th><th class="text-left">Description</th><th class="text-left">Category</th><th class="text-right">Amount</th><th></th></tr>
+                            </thead>
+                            <tbody id="transactions-body" class="text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Modal -->
+    <div id="add-modal" onclick="if (event.target.id==='add-modal') hideAddModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div onclick="event.stopImmediatePropagation()" class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6">
+            <h3 id="modal-title" class="font-semibold text-xl mb-4"></h3>
+            <div class="space-y-3">
+                <div><label class="text-xs text-slate-400">Amount</label><input id="amount" type="number" step="0.01" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl text-lg"></div>
+                <div><label class="text-xs text-slate-400">Description</label><input id="description" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl"></div>
+                <div id="category-field">
+                    <label class="text-xs text-slate-400">Category</label>
+                    <select id="category" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl">
+                        <option>Food &amp; Groceries</option>
+                        <option>Housing</option>
+                        <option>Transportation</option>
+                        <option>Utilities</option>
+                        <option>Entertainment</option>
+                        <option>Health</option>
+                        <option>Shopping</option>
+                        <option>Travel</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div><label class="text-xs text-slate-400">Date</label><input id="date" type="date" class="w-full bg-slate-950 border border-slate-700 px-4 py-2.5 rounded-2xl"></div>
+            </div>
+            <div class="mt-6 flex gap-x-3">
+                <button onclick="saveEntry()" class="flex-1 py-3 bg-white text-slate-900 font-semibold rounded-2xl">Save</button>
+                <button onclick="hideAddModal()" class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 font-semibold rounded-2xl">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let entries = []; // {id, type:'income'|'expense', amount, description, category, date}
+
+        function loadData() {
+            const saved = localStorage.getItem('budget_tracker_data');
+            if (saved) {
+                try { entries = JSON.parse(saved); } catch(e){ entries = []; }
+            } else {
+                const today = new Date().toISOString().split('T')[0];
+                entries = [
+                    {id:'e1', type:'income', amount:4200, description:'Salary', category:'Salary', date: today},
+                    {id:'e2', type:'expense', amount:1450, description:'Rent', category:'Housing', date: today},
+                    {id:'e3', type:'expense', amount:87, description:'Groceries', category:'Food & Groceries', date: today},
+                    {id:'e4', type:'expense', amount:32, description:'Coffee', category:'Food & Groceries', date: today}
+                ];
+            }
+        }
+        function saveData() {
+            localStorage.setItem('budget_tracker_data', JSON.stringify(entries));
+        }
+
+        function updateKPIs() {
+            let income = 0, expenses = 0;
+            entries.forEach(e => {
+                if (e.type === 'income') income += Number(e.amount);
+                else expenses += Number(e.amount);
+            });
+            const net = income - expenses;
+
+            document.getElementById('total-income').textContent = '$' + income.toLocaleString();
+            document.getElementById('total-expenses').textContent = '$' + expenses.toLocaleString();
+            const netEl = document.getElementById('net-balance');
+            netEl.textContent = (net >= 0 ? '+' : '') + '$' + net.toLocaleString();
+            netEl.className = net >= 0 ? 'text-4xl font-semibold tracking-tighter money text-emerald-400' : 'text-4xl font-semibold tracking-tighter money text-rose-400';
+        }
+
+        function renderBreakdown() {
+            const container = document.getElementById('category-breakdown');
+            container.innerHTML = '';
+
+            const expenses = entries.filter(e => e.type === 'expense');
+            const totalExp = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+            const byCat = {};
+            expenses.forEach(e => {
+                byCat[e.category] = (byCat[e.category] || 0) + Number(e.amount);
+            });
+
+            const sorted = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<div class="text-sm text-slate-400">No expenses logged yet.</div>';
+                return;
+            }
+
+            sorted.forEach(([cat, amt]) => {
+                const pct = totalExp > 0 ? Math.round((amt / totalExp) * 100) : 0;
+                const row = document.createElement('div');
+                row.innerHTML = `
+                    <div class="flex justify-between text-xs mb-0.5">
+                        <span>${cat}</span>
+                        <span class="text-slate-400">$${amt.toFixed(0)} <span class="text-[10px]">(${pct}%)</span></span>
+                    </div>
+                    <div class="h-2 bg-slate-800 rounded"><div class="h-2 bg-rose-500 rounded" style="width:${pct}%"></div></div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        let currentFilter = 'all';
+
+        function filterTransactions(type) {
+            currentFilter = type;
+            document.querySelectorAll('[id^="filter-"]').forEach(b => b.classList.remove('bg-emerald-600', 'text-white'));
+            const activeBtn = document.getElementById('filter-' + (type === 'all' ? 'all' : type));
+            if (activeBtn) activeBtn.classList.add('bg-emerald-600', 'text-white');
+            renderTransactions();
+        }
+
+        function renderTransactions() {
+            const tbody = document.getElementById('transactions-body');
+            tbody.innerHTML = '';
+
+            let filtered = [...entries];
+            if (currentFilter !== 'all') filtered = filtered.filter(e => e.type === currentFilter);
+
+            filtered.sort((a,b) => b.date.localeCompare(a.date)).slice(0, 18).forEach(entry => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-slate-800 last:border-none';
+                const sign = entry.type === 'income' ? '+' : '-';
+                const color = entry.type === 'income' ? 'text-emerald-400' : 'text-rose-400';
+                tr.innerHTML = `
+                    <td class="py-2 text-xs text-slate-400">${entry.date}</td>
+                    <td class="py-2">${entry.description}</td>
+                    <td class="py-2 text-xs text-slate-400">${entry.category || ''}</td>
+                    <td class="py-2 text-right font-medium ${color} money">${sign}$${Number(entry.amount).toFixed(2)}</td>
+                    <td class="py-2 text-right"><button onclick="deleteEntry('${entry.id}')" class="text-red-400 px-1 text-xs">×</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteEntry(id) {
+            if (!confirm('Delete this entry?')) return;
+            entries = entries.filter(e => e.id !== id);
+            saveData();
+            refreshAll();
+        }
+
+        let currentType = 'expense';
+
+        function showAddModal(type) {
+            currentType = type;
+            document.getElementById('modal-title').textContent = type === 'income' ? 'Add Income' : 'Add Expense';
+            document.getElementById('category-field').style.display = type === 'income' ? 'none' : 'block';
+            document.getElementById('amount').value = '';
+            document.getElementById('description').value = type === 'income' ? 'Paycheck' : '';
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('add-modal').classList.remove('hidden');
+            document.getElementById('add-modal').classList.add('flex');
+        }
+
+        function hideAddModal() {
+            document.getElementById('add-modal').classList.remove('flex');
+            document.getElementById('add-modal').classList.add('hidden');
+        }
+
+        function saveEntry() {
+            const amt = parseFloat(document.getElementById('amount').value);
+            if (!amt) return alert('Amount required');
+
+            const entry = {
+                id: 'e' + Date.now(),
+                type: currentType,
+                amount: amt,
+                description: document.getElementById('description').value || (currentType === 'income' ? 'Income' : 'Expense'),
+                category: currentType === 'income' ? 'Income' : document.getElementById('category').value,
+                date: document.getElementById('date').value
+            };
+            entries.push(entry);
+            saveData();
+            hideAddModal();
+            refreshAll();
+        }
+
+        function exportCSV() {
+            let csv = 'Date,Type,Description,Category,Amount\n';
+            entries.forEach(e => {
+                csv += `${e.date},${e.type},"${e.description}",${e.category},${e.amount}\n`;
+            });
+            const blob = new Blob([csv], {type:'text/csv'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'budget.csv';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function refreshAll() {
+            updateKPIs();
+            renderBreakdown();
+            renderTransactions();
+        }
+
+        function init() {
+            loadData();
+            document.getElementById('filter-all').classList.add('bg-emerald-600', 'text-white');
+            refreshAll();
+            console.log('%c[Budget Tracker] Personal budget tool ready.', 'color:#64748b');
+        }
+        window.onload = init;
+    </script>
+</body>
+</html>

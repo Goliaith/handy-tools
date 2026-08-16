@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        :root {
+            --accent: #14b8a6;
+            --accent-light: #5eead4;
+        }
+
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+            background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+            font-size: 14.5px;
+            line-height: 1.55;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -2px;
+            left: 0;
+            background-color: var(--accent);
+            transition: width 0.2s ease;
+        }
+        
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .tool-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card p {
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        .coming-soon-card, .tool-card {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .hidden-tool {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.98);
+        }
+        
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(20, 184, 166, 0.08),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+            border-color: #475569;
+        }
+        
+        .tool-card:hover::before {
+            left: 100%;
+        }
+
+        .nav-active {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .section-header {
+            font-size: 1.5rem;
+            line-height: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .tool-status {
+            font-size: 0.7rem;
+            padding: 2px 10px;
+            border-radius: 9999px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(90deg, #f8fafc 0%, #99f6e4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.05;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+        }
+
+        .stat-number {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .idea-pill {
+            transition: all 0.2s ease;
+        }
+        
+        .idea-pill:hover {
+            background: #1e2937;
+            transform: translateY(-1px);
+            border-color: #475569;
+        }
+
+        .coming-soon-card {
+            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .coming-soon-card:hover {
+            border-color: #475569;
+            background: #0f172a;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <!-- Navbar -->
+    <nav class="border-b border-slate-800 bg-slate-950 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center h-16">
+                <div class="flex items-center gap-x-3">
+                    <div class="flex items-center gap-x-2">
+                        <div class="w-8 h-8 bg-emerald-600 rounded-xl flex items-center justify-center">
+                            <i class="fa-solid fa-toolbox text-white"></i>
+                        </div>
+                        <span class="font-display text-2xl font-semibold tracking-tight">Handy Tools</span>
+                    </div>
+                    <div class="px-2.5 py-1 text-xs font-medium bg-slate-900 text-slate-400 rounded-lg border border-slate-800">Handy</div>
+                </div>
+                
+                <div class="flex-1 flex items-center justify-center gap-x-8 text-sm">
+                    <a href="#tools" class="hover:text-white transition-colors text-slate-300">Tools</a>
+                    <a href="#process" class="hover:text-white transition-colors text-slate-300">Process</a>
+                    <a href="#about" class="hover:text-white transition-colors text-slate-300">About</a>
+                    <a href="#suggest" class="hover:text-white transition-colors text-slate-300">Suggest</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Public Demo Warning Banner -->
+    <div id="warning-banner" class="bg-yellow-900/30 border-b border-yellow-600 text-yellow-200 text-sm">
+        <div class="max-w-5xl mx-auto px-6 py-3 flex items-start gap-x-3">
+            <i class="fa-solid fa-exclamation-triangle mt-0.5"></i>
+            <div class="flex-1">
+                <strong>Public demo:</strong> Do not type real personal or client data. The offline pack is the product.
+            </div>
+            <button onclick="document.getElementById('warning-banner').style.display='none'" class="text-yellow-300 hover:text-white ml-2">×</button>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="max-w-5xl mx-auto px-6 pt-10 pb-8 text-center relative">
+        <div class="inline-flex items-center gap-x-2 px-3 py-1 glass rounded-full text-xs font-medium mb-6">
+            <div class="flex items-center gap-x-1.5">
+                <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                <span class="text-slate-300">Practical tools for real life</span>
+            </div>
+        </div>
+        
+        <h1 class="text-5xl md:text-6xl font-semibold tracking-[-2.5px] leading-[0.95] mb-3">
+            <span class="hero-gradient">Handy Tools</span>
+        </h1>
+        
+        <p class="max-w-xs mx-auto text-sm text-slate-400">
+            Try the tools in the browser. The offline pack is the product — it is not on GitHub.
+        </p>
+        
+        <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="#tools" 
+               class="group px-6 py-3 bg-white text-slate-950 font-semibold text-sm rounded-3xl flex items-center gap-x-2 hover:bg-white/90 active:scale-[0.985] transition-all shadow-xl shadow-white/10">
+                <span>Explore the tools</span>
+                <i class="fa-solid fa-arrow-down text-xs group-active:translate-y-px transition-transform"></i>
+            </a>
+            <a href="#suggest" 
+               class="px-6 py-3 border border-white/20 hover:bg-white/5 font-semibold text-sm rounded-3xl flex items-center gap-x-2 transition-all active:scale-[0.985]">
+                <span>Suggest the next one</span>
+            </a>
+        </div>
+        
+        <div class="mt-8 flex items-center justify-center gap-x-6 text-[11px] text-slate-400">
+            <div class="flex items-center gap-x-1.5">
+                <i class="fa-solid fa-check text-emerald-400"></i>
+                <span>100% client-side</span>
+            </div>
+            <div class="flex items-center gap-x-1.5">
+                <i class="fa-solid fa-check text-emerald-400"></i>
+                <span>Demos are free</span>
+            </div>
+            <div class="flex items-center gap-x-1.5">
+                <i class="fa-solid fa-check text-emerald-400"></i>
+                <span>Offline pack is paid</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="border-y border-slate-800 bg-slate-900/30">
+        <div class="max-w-5xl mx-auto px-6 py-4">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-x-8 text-center">
+                <div>
+                    <div class="text-3xl font-semibold tracking-tighter stat-number">12</div>
+                    <div class="text-[9px] uppercase tracking-[1.5px] text-slate-500 mt-0.5">Tools Live</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-semibold tracking-tighter stat-number">6</div>
+                    <div class="text-[9px] uppercase tracking-[1.5px] text-slate-500 mt-0.5">In the Works</div>
+                </div>
+                <div>
+                    <div class="text-3xl font-semibold tracking-tighter stat-number">$39</div>
+                    <div class="text-[9px] uppercase tracking-[1.5px] text-slate-500 mt-0.5">Offline pack</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Start Guide -->
+    <div class="max-w-5xl mx-auto px-6 pb-8">
+        <div class="bg-slate-900/50 border border-slate-700 rounded-3xl p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-300">
+                <div><span class="text-emerald-400 font-medium">1.</span> <strong>Try in Browser</strong> — instant, no install.</div>
+                <div><span class="text-emerald-400 font-medium">2.</span> <strong>Buy the pack</strong> — one zip, yours to keep, when checkout is live.</div>
+                <div><span class="text-emerald-400 font-medium">3.</span> Use the offline files for real client or money data.</div>
+            </div>
+            <p class="text-[10px] text-emerald-400/70 mt-3">Demos run in the browser. The offline zip is what you buy.</p>
+        </div>
+    </div>
+
+    <!-- Tools Grid -->
+    <div id="tools" class="max-w-5xl mx-auto px-6 pt-10 pb-12">
+        <div class="flex items-end justify-between mb-5">
+            <div>
+                <h2 class="section-header">The Collection</h2>
+                <p class="text-slate-300 mt-1.5 text-sm">Practical tools. Try the demo. Buy the offline pack for private use.</p>
+            </div>
+            <a href="#suggest" class="text-sm flex items-center gap-x-2 text-emerald-400 hover:text-emerald-300 font-medium">
+                Suggest the next one <i class="fa-solid fa-arrow-right text-xs ml-1"></i>
+            </a>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="mb-4 flex flex-col md:flex-row gap-3 items-center">
+            <div class="flex-1 w-full">
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-4 top-2.5 text-slate-500"></i>
+                    <input type="text" id="tool-search" placeholder="Search tools (e.g. budget, habit, invoice)..." 
+                           class="w-full bg-slate-900 border border-slate-700 pl-11 pr-4 py-2 rounded-2xl text-sm focus:outline-none focus:border-emerald-500"
+                           onkeyup="filterTools()">
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2" id="category-filters">
+                <button onclick="filterByCategory('all')" class="active px-3.5 py-1 text-xs font-medium bg-emerald-600 text-white rounded-full transition-colors">All</button>
+                <button onclick="filterByCategory('finance')" class="px-3.5 py-1 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-full border border-slate-700 transition-colors">Finance</button>
+                <button onclick="filterByCategory('productivity')" class="px-3.5 py-1 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-full border border-slate-700 transition-colors">Productivity</button>
+                <button onclick="filterByCategory('management')" class="px-3.5 py-1 text-xs font-medium bg-slate-800 hover:bg-slate-700 rounded-full border border-slate-700 transition-colors">Management</button>
+                <button onclick="resetFilters()" class="px-2.5 py-1 text-xs font-medium text-slate-400 hover:text-emerald-400 transition-colors">Clear</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="tools-grid">
+            
+            <!-- Real Estate Accounting -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="finance real-estate">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-building text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                
+                <h3 class="font-semibold text-xl tracking-tight">Real Estate Accounting</h3>
+                <p class="text-slate-300 mt-2 flex-1">Full-featured spreadsheet for managing income, expenses, and reporting across multiple properties. Includes P&amp;L, cash flow, and per-property breakdowns.</p>
+                <div class="text-[10px] text-slate-500 mt-1">Finance • Real Estate</div>
+                
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300">
+                            <span>Spreadsheet</span>
+                            <span class="text-slate-700">•</span>
+                            <span>Real Estate</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/real-estate-accounting.html" target="_blank"
+                           class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl transition-colors">
+                            <span>Try in Browser</span>
+                        </a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Browser demo. Offline copy is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Investment Return Calculator -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="finance calculator">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-chart-line text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-blue-900/50 text-blue-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                
+                <h3 class="font-semibold text-xl tracking-tight">Investment Return Calculator</h3>
+                <p class="text-slate-300 mt-2 flex-1">Interactive tool for modeling real estate deals with IRR, cash-on-cash return, and sensitivity analysis.</p>
+                
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300">
+                            <span>Calculator</span>
+                            <span class="text-slate-700">•</span>
+                            <span>Investments</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/investment-return-calculator.html" target="_blank"
+                           class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl transition-colors">
+                            <span>Try in Browser</span>
+                        </a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Browser demo. Offline copy is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Tenant Screening & CRM -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="management crm">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-violet-500/10 text-violet-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-users text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-violet-900/50 text-violet-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                
+                <h3 class="font-semibold text-xl tracking-tight">Tenant Screening &amp; CRM</h3>
+                <p class="text-slate-300 mt-2 flex-1">Track applicants, score tenants based on credit/income, manage communications and lease renewals.</p>
+                
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300">
+                            <span>CRM</span>
+                            <span class="text-slate-700">•</span>
+                            <span>Property Management</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/tenant-screening-crm.html" target="_blank"
+                           class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs rounded-xl transition-colors">
+                            <span>Try in Browser</span>
+                        </a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Browser demo. Offline copy is in the paid pack. No real personal data on site.</p>
+                </div>
+            </div>
+
+            <!-- Kanban Task Board (promoted) -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="productivity management">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-orange-500/10 text-orange-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-columns text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                
+                <h3 class="font-semibold text-xl tracking-tight">Kanban Task Board</h3>
+                <p class="text-slate-300 mt-2 flex-1">Drag-and-drop task manager with To Do / In Progress / Done columns, priorities, due dates, and local persistence.</p>
+                
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300">
+                            <span>Kanban</span>
+                            <span class="text-slate-700">•</span>
+                            <span>Productivity</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/kanban-task-board.html" target="_blank"
+                           class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs rounded-xl transition-colors">
+                            <span>Try in Browser</span>
+                        </a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Browser demo. Offline copy is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Habit Tracker -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="productivity">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-calendar-check text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                <h3 class="font-semibold text-xl tracking-tight">Habit Tracker</h3>
+                <p class="text-slate-300 mt-2 flex-1">Track daily habits with visual 4-week calendars, current &amp; longest streaks, and automatic progress stats.</p>
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300"><span>Habits</span><span class="text-slate-700">•</span><span>Productivity</span></div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/habit-tracker.html" target="_blank" class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-xl">Try in Browser</a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Demo only. Offline file is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Invoice Generator -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="finance">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-file-invoice-dollar text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                <h3 class="font-semibold text-xl tracking-tight">Invoice Generator</h3>
+                <p class="text-slate-300 mt-2 flex-1">Create clean professional invoices. Dynamic line items, automatic tax &amp; totals, print-ready PDF output, and JSON export.</p>
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300"><span>Invoices</span><span class="text-slate-700">•</span><span>Finance</span></div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/invoice-generator.html" target="_blank" class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs rounded-xl">Try in Browser</a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Demo only. Offline file is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Client Proposal Builder -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="finance productivity">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-violet-500/10 text-violet-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-file-signature text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                <h3 class="font-semibold text-xl tracking-tight">Client Proposal Builder</h3>
+                <p class="text-slate-300 mt-2 flex-1">Scope, price, timeline, and an accept/decline signature block. Print to PDF. Pair it with the invoice generator after they say yes.</p>
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300"><span>Proposals</span><span class="text-slate-700">•</span><span>Freelance</span></div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/client-proposal-builder.html" target="_blank" class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs rounded-xl">Try in Browser</a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Demo only. Offline file is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Personal Budget Tracker -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="finance">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-teal-500/10 text-teal-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-wallet text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                <h3 class="font-semibold text-xl tracking-tight">Personal Budget Tracker</h3>
+                <p class="text-slate-300 mt-2 flex-1">Log income and expenses. See live net balance, category spending breakdown with bars, and exportable transaction history.</p>
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300"><span>Budgeting</span><span class="text-slate-700">•</span><span>Finance</span></div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/personal-budget-tracker.html" target="_blank" class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs rounded-xl">Try in Browser</a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Demo only. Offline file is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Time Tracker -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="productivity">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-clock text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                <h3 class="font-semibold text-xl tracking-tight">Time Tracker</h3>
+                <p class="text-slate-300 mt-2 flex-1">Start/stop timers on tasks. Live elapsed time, session history, daily/weekly totals, and CSV export.</p>
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300"><span>Tracking</span><span class="text-slate-700">•</span><span>Productivity</span></div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/time-tracker.html" target="_blank" class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl">Try in Browser</a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Demo only. Offline file is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Group Expense Splitter -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="finance">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-violet-500/10 text-violet-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-users text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                <h3 class="font-semibold text-xl tracking-tight">Group Expense Splitter</h3>
+                <p class="text-slate-300 mt-2 flex-1">Add people and shared expenses. Automatically calculates who owes whom with clear balances.</p>
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300"><span>Splitter</span><span class="text-slate-700">•</span><span>Finance</span></div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/group-expense-splitter.html" target="_blank" class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold text-xs rounded-xl">Try in Browser</a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Demo only. Offline file is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Recipe & Meal Planner -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="productivity">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-orange-500/10 text-orange-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-utensils text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                
+                <h3 class="font-semibold text-xl tracking-tight">Recipe &amp; Meal Planner</h3>
+                <p class="text-slate-300 mt-2 flex-1">Save recipes with ingredients &amp; instructions. Plan your week, then auto-generate a shopping list from your meals.</p>
+                
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300">
+                            <span>Planning</span>
+                            <span class="text-slate-700">•</span>
+                            <span>Productivity</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/recipe-meal-planner.html" target="_blank"
+                           class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-500 text-white font-semibold text-xs rounded-xl transition-colors">
+                            <span>Try in Browser</span>
+                        </a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Demo only. Offline file is in the paid pack.</p>
+                </div>
+            </div>
+
+            <!-- Travel Itinerary & Budget Planner -->
+            <div class="tool-card bg-slate-900 border border-slate-800 rounded-3xl p-5 flex flex-col group" data-category="productivity">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="w-12 h-12 bg-sky-500/10 text-sky-400 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-plane text-2xl"></i>
+                    </div>
+                    <span class="tool-status bg-emerald-900/50 text-emerald-400 px-2.5 py-0.5 text-xs font-medium">LIVE</span>
+                </div>
+                
+                <h3 class="font-semibold text-xl tracking-tight">Travel Itinerary &amp; Budget Planner</h3>
+                <p class="text-slate-300 mt-2 flex-1">Plan your trip with daily activities and real-time budget tracking. Live totals, expense logging, and CSV export.</p>
+                
+                <div class="mt-5 pt-5 border-t border-slate-800 flex flex-col gap-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center gap-x-1.5 text-xs text-slate-300">
+                            <span>Planning</span>
+                            <span class="text-slate-700">•</span>
+                            <span>Productivity</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <a href="tools/travel-itinerary-planner.html" target="_blank"
+                           class="w-full inline-flex items-center justify-center gap-x-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs rounded-xl transition-colors">
+                            <span>Try in Browser</span>
+                        </a>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-1">Demo only. Offline file is in the paid pack.</p>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="mt-6 text-center">
+            <p class="text-xs text-slate-300">New tools are added over time. Demos stay here. Offline files ship in the pack.</p>
+            <p class="text-xs text-yellow-400 mt-1">Public demos only. Buy the pack for real or sensitive data.</p>
+        </div>
+
+        <!-- Coming Soon -->
+        <div class="mt-8">
+            <h3 class="text-base font-semibold tracking-tight mb-3 text-slate-300">More Tools</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="coming-soon-card bg-slate-900/50 border border-slate-700 hover:border-slate-600 rounded-3xl p-4">
+                    <div class="flex items-center gap-x-3 mb-3">
+                        <div class="w-9 h-9 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center">
+                            <i class="fa-solid fa-book-open"></i>
+                        </div>
+                        <span class="text-sm font-semibold">Book &amp; Reading Tracker</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">Track your reading progress, want-to-read list, and reading goals.</p>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <p class="text-xs text-slate-300">More tools added regularly. Have an idea? Send it below.</p>
+            </div>
+        </div>
+
+        <!-- Clean, limited future list -->
+        <div class="mt-5">
+            <h4 class="text-xs font-medium text-slate-400 mb-2">More coming soon</h4>
+            <div class="flex flex-wrap gap-1.5 text-[10px]">
+                <span class="px-2.5 py-0.5 bg-slate-800 rounded-full border border-slate-700">Book &amp; Reading Tracker</span>
+                <span class="px-2.5 py-0.5 bg-slate-800 rounded-full border border-slate-700">Goal &amp; OKR Tracker</span>
+                <span class="px-2.5 py-0.5 bg-slate-800 rounded-full border border-slate-700">Content Calendar &amp; Idea Bank</span>
+                <span class="px-2.5 py-0.5 bg-slate-800 rounded-full border border-slate-700">Pet Care &amp; Health Tracker</span>
+                <span class="px-2.5 py-0.5 bg-slate-800 rounded-full border border-slate-700">Simple Survey Builder</span>
+                <span class="px-2.5 py-0.5 bg-slate-800 rounded-full border border-slate-700">Home Maintenance Scheduler</span>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-2">Pick one and a working tool with offline download gets added.</p>
+        </div>
+    </div>
+
+    <!-- Process Section -->
+    <div id="process" class="border-t border-slate-800 bg-slate-900/60">
+        <div class="max-w-5xl mx-auto px-6 py-10">
+            <div class="max-w-2xl">
+                <h2 class="text-2xl font-semibold tracking-tight">The process</h2>
+                <p class="text-slate-300 mt-1.5 text-sm">Identify a real problem, design useful features, build a working tool, and publish it here with a downloadable version.</p>
+            </div>
+            
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-5">
+                <div class="glass p-5 rounded-3xl border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-2">
+                        <div class="w-8 h-8 rounded-2xl bg-white/10 flex items-center justify-center text-xs font-semibold text-white">01</div>
+                    </div>
+                    <div class="font-semibold">Identify the problem</div>
+                    <p class="mt-1.5 text-xs text-slate-300">A practical pain point is spotted — something that could be simpler or faster.</p>
+                </div>
+                <div class="glass p-5 rounded-3xl border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-2">
+                        <div class="w-8 h-8 rounded-2xl bg-white/10 flex items-center justify-center text-xs font-semibold text-white">02</div>
+                    </div>
+                    <div class="font-semibold">Design the tool</div>
+                    <p class="mt-1.5 text-xs text-slate-300">Define the minimum useful features and a clean interaction model.</p>
+                </div>
+                <div class="glass p-5 rounded-3xl border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-2">
+                        <div class="w-8 h-8 rounded-2xl bg-white/10 flex items-center justify-center text-xs font-semibold text-white">03</div>
+                    </div>
+                    <div class="font-semibold">Build it</div>
+                    <p class="mt-1.5 text-xs text-slate-300">A fully working, self-contained HTML tool is created with live functionality and downloads.</p>
+                </div>
+                <div class="glass p-5 rounded-3xl border border-white/10">
+                    <div class="flex items-center gap-x-3 mb-2">
+                        <div class="w-8 h-8 rounded-2xl bg-white/10 flex items-center justify-center text-xs font-semibold text-white">04</div>
+                    </div>
+                    <div class="font-semibold">Publish</div>
+                    <p class="mt-1.5 text-xs text-slate-300">It goes live here as a demo. The offline file ships in the paid pack.</p>
+                </div>
+            </div>
+            
+            <div class="mt-5 p-3.5 bg-slate-900 border border-slate-800 rounded-2xl text-xs">
+                <span class="text-white font-medium">Example:</span> “Expenses are messy.” A budget tool is designed and built. The demo is public. The offline file is sold.
+            </div>
+            <div class="mt-2 p-2.5 bg-yellow-900/20 border border-yellow-700 rounded-2xl text-[10px] text-yellow-300">
+                Public demos only. Use the paid offline pack for real personal or financial data.
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggest Section -->
+    <div id="suggest" class="max-w-5xl mx-auto px-6 py-12 border-t border-slate-800">
+        <div class="max-w-xl">
+            <h2 class="text-2xl font-semibold tracking-tight">Got an idea?</h2>
+            <p class="mt-2 text-sm text-slate-300">Tell me about a problem you're facing. I can build a tool for it.</p>
+            
+            <div class="mt-5">
+                <button onclick="showSuggestModal()" 
+                        class="px-5 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-semibold rounded-2xl text-sm flex items-center gap-x-2 transition-colors">
+                    <span>Send an idea</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <section id="pack" class="max-w-5xl mx-auto px-6 pb-10">
+        <div class="bg-emerald-950/40 border border-emerald-700/50 rounded-3xl p-6 text-sm text-slate-200 space-y-3">
+            <h2 class="font-semibold text-lg text-white">The product is the offline pack — $39</h2>
+            <p>Twelve single-file tools. One zip. Pay once. Your data never leaves your machine.</p>
+            <p class="text-slate-400">Checkout is not connected yet. When it is, the button below becomes a Gumroad (or Creem) link. Until then there is no download, on purpose.</p>
+            <a id="pack-cta" href="#pack" class="inline-flex items-center gap-x-2 px-5 py-2.5 bg-white text-slate-950 font-semibold text-sm rounded-2xl">
+                Offline pack — checkout soon
+            </a>
+        </div>
+    </section>
+    <section id="about" class="max-w-5xl mx-auto px-6 pb-10">
+        <div class="bg-slate-900/50 border border-slate-700 rounded-3xl p-6 text-sm text-slate-300 space-y-3">
+            <h2 class="font-semibold text-lg text-white">Built by a disclosed AI</h2>
+            <p>These tools were built by <strong>Grok (xAI)</strong>, an AI assistant, for a human owner. The site is a storefront: free to try, not free to take home.</p>
+            <p>The product is the <strong>offline pack</strong> — twelve HTML files you keep, with a buyer license. That zip is not in this GitHub repo.</p>
+            <p class="text-xs text-slate-500">Checkout is not live until the human owner connects a merchant account. I will not fake a buy button or give the product away to look busy.</p>
+        </div>
+    </section>
+
+    <footer class="border-t border-slate-800 py-6">
+        <div class="max-w-5xl mx-auto px-6 text-xs text-slate-400 flex flex-col md:flex-row items-center justify-between gap-y-1.5">
+            <div>Handy Tools. Free to try. Built by Grok (xAI), a disclosed AI.</div>
+            <div class="text-center md:text-right">
+                Idea or feedback? <a href="#suggest" class="underline hover:text-white">Send a message</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Suggest Modal -->
+    <div id="suggest-modal" onclick="if (event.target.id === 'suggest-modal') hideSuggestModal()" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div onclick="event.stopImmediatePropagation()" class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-semibold text-lg">Send feedback or an idea</h3>
+                <button onclick="hideSuggestModal()" class="text-slate-400 hover:text-white text-xl">&times;</button>
+            </div>
+            
+            <form id="suggest-form" name="suggest-tool" method="POST" data-netlify="true" action="/" onsubmit="handleSuggestSubmit(event)">
+                <input type="hidden" name="form-name" value="suggest-tool">
+                <input type="hidden" name="_subject" value="New suggestion / message from Handy Tools">
+                <!-- Honeypot for spam (hidden from users) -->
+                <p class="hidden">
+                    <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+                </p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-medium text-slate-400">Tool name or short description</label>
+                        <input name="name" id="tool-name" type="text" class="mt-1 w-full bg-slate-950 border border-slate-700 px-4 py-3 rounded-2xl text-sm focus:outline-none" placeholder="Real estate accounting spreadsheet">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-400">Your email (so I can reply)</label>
+                        <input name="email" id="your-email" type="email" class="mt-1 w-full bg-slate-950 border border-slate-700 px-4 py-3 rounded-2xl text-sm focus:outline-none" placeholder="you@example.com">
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-400">What problem does it solve?</label>
+                        <textarea name="problem" id="tool-problem" class="mt-1 w-full bg-slate-950 border border-slate-700 px-4 py-3 rounded-2xl h-24 text-sm focus:outline-none" placeholder="Managing income and expenses across multiple rental properties is messy and error-prone."></textarea>
+                    </div>
+                    <div>
+                        <label class="text-xs font-medium text-slate-400">Any specific features you want?</label>
+                        <textarea name="features" id="tool-features" class="mt-1 w-full bg-slate-950 border border-slate-700 px-4 py-3 rounded-2xl h-20 text-sm focus:outline-none" placeholder="Track per-property P&amp;L, auto-generate tax reports, monthly cash flow forecasting..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex gap-x-3">
+                    <button type="submit" 
+                            class="flex-1 py-3 bg-white text-slate-900 font-semibold rounded-2xl text-sm hover:bg-slate-100">Send</button>
+                    <button type="button" onclick="hideSuggestModal()" 
+                            class="flex-1 py-3 bg-slate-800 hover:bg-slate-700 font-semibold rounded-2xl text-sm">Cancel</button>
+                </div>
+                <p class="text-center text-[10px] text-slate-500 mt-4">Quick form. I'll reply if you leave an email. No sign-up needed.</p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function initializeTailwind() {
+            // Tailwind is already loaded via CDN
+        }
+
+        // Store the original form HTML so we can restore it after a successful submission
+        let originalModalContent = null;
+
+        function showSuggestModal() {
+            const modal = document.getElementById('suggest-modal');
+            const modalContent = modal.querySelector('> div');
+
+            // Restore the form if it was replaced by success/loading state
+            if (originalModalContent && modalContent.innerHTML !== originalModalContent) {
+                modalContent.innerHTML = originalModalContent;
+                // Re-attach the submit handler (in case we replaced the whole form)
+                const form = modalContent.querySelector('#suggest-form');
+                if (form) {
+                    form.onsubmit = handleSuggestSubmit;
+                }
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function hideSuggestModal() {
+            const modal = document.getElementById('suggest-modal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        // Used by the success state so the next time the modal opens it shows the fresh form
+        function closeAndResetSuggestModal() {
+            const modal = document.getElementById('suggest-modal');
+            const modalContent = modal.querySelector('> div');
+
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+
+            // Restore original form content for next time
+            if (originalModalContent) {
+                modalContent.innerHTML = originalModalContent;
+                const form = modalContent.querySelector('#suggest-form');
+                if (form) form.onsubmit = handleSuggestSubmit;
+            }
+        }
+
+        // === SUGGEST / CONTACT FORM (Netlify Forms) ===
+        // Netlify automatically detects the form because of name="suggest-tool" + data-netlify="true".
+        // Submissions go to your Netlify dashboard (Forms tab).
+        // Set your email for notifications in: Site settings → Forms → Form notifications.
+        // No email address is ever visible in the site source code.
+        // The JS fetch posts to "/" and Netlify processes it in the background.
+
+        function handleSuggestSubmit(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const modalContent = document.querySelector('#suggest-modal > div');
+
+            // Show loading state
+            const originalContent = modalContent.innerHTML;
+            modalContent.innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fa-solid fa-spinner fa-spin text-3xl text-emerald-400 mb-4"></i>
+                    <p class="text-slate-400">Sending your message...</p>
+                </div>
+            `;
+
+            fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString()
+            })
+            .then(() => {
+                modalContent.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fa-solid fa-check-circle text-4xl text-emerald-400 mb-3"></i>
+                        <h3 class="font-semibold text-lg mb-2">Message sent!</h3>
+                        <p class="text-sm text-slate-400 mb-4">Thanks — I'll get back to you soon.</p>
+                        <button onclick="closeAndResetSuggestModal()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm rounded-2xl">Close</button>
+                    </div>
+                `;
+            })
+            .catch((error) => {
+                console.error("Form submission error:", error);
+                modalContent.innerHTML = originalContent;
+                alert("There was a problem sending your message. Please try again or contact me directly.");
+            });
+        }
+
+        // Simple analytics placeholder
+        function trackToolView(toolName) {
+            console.log(`[Portfolio] Tool viewed: ${toolName}`);
+        }
+
+        // Initialize everything
+        function init() {
+            initializeTailwind();
+
+            // Capture the original suggest modal content once (for restoring after submissions)
+            const initialModal = document.querySelector('#suggest-modal > div');
+            if (initialModal) {
+                originalModalContent = initialModal.innerHTML;
+            }
+            
+            // Add click tracking to tool links (for future analytics)
+            const toolLinks = document.querySelectorAll('a[href^="tools/"]');
+            toolLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    trackToolView(link.textContent.trim() || 'Unknown Tool');
+                });
+            });
+            
+            console.log('%c[Handy Tools] Site initialized. Ready for more tools.', 'color:#64748b');
+        }
+
+        window.onload = init;
+
+        // UX Improvement: Search and Category Filter
+        let currentCategory = 'all';
+
+        function filterTools() {
+            const searchTerm = document.getElementById('tool-search').value.toLowerCase().trim();
+            const toolCards = document.querySelectorAll('#tools-grid .tool-card, .coming-soon-card');
+            
+            toolCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const category = card.getAttribute('data-category') || '';
+                const matchesSearch = text.includes(searchTerm);
+                const matchesCategory = currentCategory === 'all' || category.includes(currentCategory);
+                
+                if (matchesSearch && matchesCategory) {
+                    card.classList.remove('hidden-tool');
+                    card.style.display = '';
+                } else {
+                    card.classList.add('hidden-tool');
+                    setTimeout(() => {
+                        if (card.classList.contains('hidden-tool')) {
+                            card.style.display = 'none';
+                        }
+                    }, 200);
+                }
+            });
+        }
+
+        function filterByCategory(category) {
+            currentCategory = category;
+            
+            // Update active button styles
+            document.querySelectorAll('#category-filters button').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'border', 'border-slate-700');
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(category)) {
+                    btn.classList.remove('bg-slate-800', 'hover:bg-slate-700', 'border', 'border-slate-700');
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                }
+                if (category === 'all' && btn.getAttribute('onclick').includes('all')) {
+                    btn.classList.remove('bg-slate-800', 'hover:bg-slate-700', 'border', 'border-slate-700');
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                }
+            });
+            
+            filterTools();
+        }
+
+        function resetFilters() {
+            document.getElementById('tool-search').value = '';
+            currentCategory = 'all';
+            document.querySelectorAll('#category-filters button').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'hover:bg-slate-700', 'border', 'border-slate-700');
+                if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes('all')) {
+                    btn.classList.remove('bg-slate-800', 'hover:bg-slate-700', 'border', 'border-slate-700');
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                }
+            });
+            document.querySelectorAll('#tools-grid .tool-card, .coming-soon-card').forEach(card => {
+                card.classList.remove('hidden-tool');
+                card.style.display = '';
+            });
+        }
+
+        // Initialize filters on load (add to existing init)
+        const originalInit = window.onload;
+        window.onload = function() {
+            if (originalInit) originalInit();
+            
+            // Set initial active filter
+            const allBtn = document.querySelector('#category-filters button[onclick*="all"]');
+            if (allBtn) allBtn.classList.add('bg-emerald-600', 'text-white');
+            
+            // Make coming soon cards filterable too
+            document.querySelectorAll('.coming-soon-card').forEach(card => {
+                if (!card.hasAttribute('data-category')) {
+                    // Assign default categories based on content
+                    const text = card.textContent.toLowerCase();
+                    if (text.includes('kanban') || text.includes('habit') || text.includes('time') || text.includes('book')) {
+                        card.setAttribute('data-category', 'productivity');
+                    } else if (text.includes('invoice') || text.includes('splitter')) {
+                        card.setAttribute('data-category', 'finance');
+                    }
+                }
+            });
+            
+            // Ensure cards are visible on load
+            document.querySelectorAll('#tools-grid .tool-card, .coming-soon-card').forEach(card => {
+                card.classList.remove('hidden-tool');
+            });
+            
+            console.log('Filters initialized for better UX');
+        };
+    </script>
+</body>
+</html>

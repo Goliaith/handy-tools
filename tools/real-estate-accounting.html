@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Accounting • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .section-card { background: #0f172a; border: 1px solid #334155; }
+        .data-table th { background: #1e2937; font-weight: 600; font-size: 0.75rem; }
+        .data-table td { font-size: 0.875rem; }
+        .kpi-card { transition: transform 0.1s ease; }
+        .nav-tab { transition: all 0.1s ease; }
+        .nav-tab.active { background: #0f172a; border-bottom: 3px solid #6366f1; color: white; }
+        .editable-cell { cursor: text; }
+        .editable-cell:focus { outline: 2px solid #6366f1; background: #1e2937; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-screen-xl mx-auto">
+        <!-- Header -->
+        <div class="px-8 pt-6 pb-4 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center gap-x-4">
+                <a href="../index.html" class="flex items-center gap-x-2 text-slate-400 hover:text-white text-sm">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back to Portfolio</span>
+                </a>
+                <div>
+                    <h1 class="font-semibold text-2xl flex items-center gap-x-3">
+                        Real Estate Accounting
+                        <span class="text-xs font-mono px-2 py-0.5 bg-emerald-900/50 text-emerald-400 rounded">LIVE</span>
+                    </h1>
+                    <p class="text-sm text-slate-400">Acme Rentals LLC • February 2025</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-x-3">
+                <a href="real-estate-accounting-standalone.html" download="real-estate-accounting.html"
+                   class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium border border-emerald-600 hover:bg-emerald-900 text-emerald-400 rounded-2xl">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Download Standalone HTML</span>
+                </a>
+                <button onclick="exportToCSV()" 
+                        class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium border border-slate-700 hover:bg-slate-900 rounded-2xl">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Export CSV</span>
+                </button>
+                <button onclick="resetData()" 
+                        class="flex items-center gap-x-2 px-4 py-2 text-sm font-medium bg-red-900/20 hover:bg-red-900/40 text-red-400 rounded-2xl">
+                    <i class="fa-solid fa-undo"></i>
+                    <span>Reset Sample Data</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Public Demo Warning -->
+        <div class="mx-8 mt-4 p-4 bg-yellow-900/30 border border-yellow-600 rounded-2xl text-yellow-200 text-sm">
+            <i class="fa-solid fa-exclamation-triangle mr-2"></i>
+            <strong>Warning:</strong> This is a public demonstration version. 
+            <strong>Do not enter any real personal or sensitive information</strong> (e.g., full addresses with names, financial details tied to real people). 
+            For real data, use the <strong>downloaded standalone HTML</strong> version only.
+        </div>
+
+        <!-- KPI Dashboard -->
+        <div class="px-8 py-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="kpi-card section-card rounded-3xl p-5">
+                <div class="text-xs uppercase tracking-widest text-emerald-400">Total Income</div>
+                <div id="total-income" class="text-3xl font-semibold mt-1 text-emerald-400">$87,450</div>
+                <div class="text-xs text-slate-500 mt-2">+12% from last month</div>
+            </div>
+            <div class="kpi-card section-card rounded-3xl p-5">
+                <div class="text-xs uppercase tracking-widest text-red-400">Total Expenses</div>
+                <div id="total-expenses" class="text-3xl font-semibold mt-1 text-red-400">$31,820</div>
+                <div class="text-xs text-slate-500 mt-2">+4% from last month</div>
+            </div>
+            <div class="kpi-card section-card rounded-3xl p-5">
+                <div class="text-xs uppercase tracking-widest text-blue-400">Net Operating Income</div>
+                <div id="net-income" class="text-3xl font-semibold mt-1">$55,630</div>
+                <div class="text-xs text-emerald-400 mt-2">63.6% margin</div>
+            </div>
+            <div class="kpi-card section-card rounded-3xl p-5">
+                <div class="text-xs uppercase tracking-widest text-violet-400">Occupancy Rate</div>
+                <div id="occupancy" class="text-3xl font-semibold mt-1">94%</div>
+                <div class="text-xs text-slate-500 mt-2">15 / 16 units occupied</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="px-8 flex border-b border-slate-800">
+            <button onclick="switchTab(0)" class="nav-tab px-6 py-3 font-medium border-b-2 border-indigo-500 text-sm active">Dashboard</button>
+            <button onclick="switchTab(1)" class="nav-tab px-6 py-3 font-medium text-slate-400 hover:text-white text-sm">Properties</button>
+            <button onclick="switchTab(2)" class="nav-tab px-6 py-3 font-medium text-slate-400 hover:text-white text-sm">Income Log</button>
+            <button onclick="switchTab(3)" class="nav-tab px-6 py-3 font-medium text-slate-400 hover:text-white text-sm">Expenses</button>
+            <button onclick="switchTab(4)" class="nav-tab px-6 py-3 font-medium text-slate-400 hover:text-white text-sm">Monthly Report</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-8">
+            
+            <!-- Dashboard Tab -->
+            <div id="tab-0" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Income Breakdown -->
+                    <div class="section-card rounded-3xl p-5">
+                        <h4 class="font-semibold mb-4 flex items-center gap-x-2">
+                            <i class="fa-solid fa-coins text-emerald-400"></i> 
+                            <span>Income by Category</span>
+                        </h4>
+                        <canvas id="incomeChart" height="120"></canvas>
+                    </div>
+                    
+                    <!-- Expense Breakdown -->
+                    <div class="section-card rounded-3xl p-5">
+                        <h4 class="font-semibold mb-4 flex items-center gap-x-2">
+                            <i class="fa-solid fa-receipt text-red-400"></i> 
+                            <span>Expenses by Category</span>
+                        </h4>
+                        <canvas id="expenseChart" height="120"></canvas>
+                    </div>
+                </div>
+                
+                <div class="mt-6 section-card rounded-3xl p-5">
+                    <h4 class="font-semibold mb-3">Property Performance</h4>
+                    <div id="property-summary" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+
+            <!-- Properties Tab -->
+            <div id="tab-1" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-semibold">Properties</h4>
+                    <button onclick="addProperty()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm rounded-2xl flex items-center gap-x-2 text-xs font-medium">
+                        <i class="fa-solid fa-plus"></i> <span>Add Property</span>
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto section-card rounded-3xl">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b border-slate-700">
+                                <th class="px-4 py-3 text-left text-xs">Address</th>
+                                <th class="px-4 py-3 text-left text-xs">Units</th>
+                                <th class="px-4 py-3 text-right text-xs">Monthly Rent</th>
+                                <th class="px-4 py-3 text-right text-xs">Value</th>
+                                <th class="px-4 py-3 text-center text-xs">Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="properties-table" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Income Log -->
+            <div id="tab-2" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-semibold">Income Entries</h4>
+                    <button onclick="addIncomeEntry()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm rounded-2xl flex items-center gap-x-2 text-xs font-medium">
+                        <i class="fa-solid fa-plus"></i> <span>Add Income</span>
+                    </button>
+                </div>
+                
+                <div class="section-card rounded-3xl overflow-hidden">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b border-slate-700">
+                                <th class="px-4 py-3 text-left text-xs">Date</th>
+                                <th class="px-4 py-3 text-left text-xs">Property</th>
+                                <th class="px-4 py-3 text-left text-xs">Type</th>
+                                <th class="px-4 py-3 text-right text-xs">Amount</th>
+                                <th class="px-4 py-3 w-8"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="income-table" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Expenses Tab -->
+            <div id="tab-3" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-semibold">Expense Entries</h4>
+                    <button onclick="addExpenseEntry()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-sm rounded-2xl flex items-center gap-x-2 text-xs font-medium">
+                        <i class="fa-solid fa-plus"></i> <span>Add Expense</span>
+                    </button>
+                </div>
+                
+                <div class="section-card rounded-3xl overflow-hidden">
+                    <table class="min-w-full">
+                        <thead>
+                            <tr class="border-b border-slate-700">
+                                <th class="px-4 py-3 text-left text-xs">Date</th>
+                                <th class="px-4 py-3 text-left text-xs">Property</th>
+                                <th class="px-4 py-3 text-left text-xs">Category</th>
+                                <th class="px-4 py-3 text-right text-xs">Amount</th>
+                                <th class="px-4 py-3 w-8"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenses-table" class="text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Monthly Report -->
+            <div id="tab-4" class="tab-content hidden">
+                <h4 class="font-semibold mb-4">Monthly Profit &amp; Loss Summary</h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="section-card rounded-3xl p-5">
+                        <div class="text-xs text-slate-400">Gross Rental Income</div>
+                        <div id="report-rental" class="text-2xl font-semibold mt-1"></div>
+                    </div>
+                    <div class="section-card rounded-3xl p-5">
+                        <div class="text-xs text-slate-400">Other Income</div>
+                        <div id="report-other" class="text-2xl font-semibold mt-1"></div>
+                    </div>
+                    <div class="section-card rounded-3xl p-5">
+                        <div class="text-xs text-slate-400">Total Revenue</div>
+                        <div id="report-revenue" class="text-2xl font-semibold mt-1 text-emerald-400"></div>
+                    </div>
+                </div>
+                
+                <div class="section-card rounded-3xl p-5">
+                    <div class="text-xs text-slate-400 mb-3">Expense Breakdown</div>
+                    <div id="report-expenses" class="space-y-2 text-sm"></div>
+                    
+                    <div class="mt-5 pt-5 border-t border-slate-700 flex justify-between font-semibold">
+                        <div>Net Operating Income</div>
+                        <div id="report-noi" class="text-emerald-400"></div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Tailwind + Data
+        let data = {
+            properties: [],
+            income: [],
+            expenses: []
+        };
+
+        let incomeChart, expenseChart;
+
+        function loadSampleData() {
+            // Sample Properties
+            data.properties = [
+                { id: 1, address: "142 Oak Street", units: 4, rent: 6200, value: 920000, status: "Occupied" },
+                { id: 2, address: "87 Maple Ave", units: 2, rent: 2800, value: 485000, status: "Occupied" },
+                { id: 3, address: "210 Pine Road", units: 6, rent: 9100, value: 1240000, status: "Occupied" },
+                { id: 4, address: "55 Elm Court", units: 4, rent: 5400, value: 780000, status: "Vacant" }
+            ];
+
+            // Sample Income
+            data.income = [
+                { id: 1, date: "2025-02-01", property: "142 Oak Street", type: "Rent", amount: 6200 },
+                { id: 2, date: "2025-02-01", property: "87 Maple Ave", type: "Rent", amount: 2800 },
+                { id: 3, date: "2025-02-01", property: "210 Pine Road", type: "Rent", amount: 9100 },
+                { id: 4, date: "2025-02-05", property: "142 Oak Street", type: "Laundry", amount: 180 },
+                { id: 5, date: "2025-02-01", property: "55 Elm Court", type: "Rent", amount: 5400 }
+            ];
+
+            // Sample Expenses
+            data.expenses = [
+                { id: 1, date: "2025-02-03", property: "142 Oak Street", category: "Maintenance", amount: 420 },
+                { id: 2, date: "2025-02-08", property: "210 Pine Road", category: "Utilities", amount: 1150 },
+                { id: 3, date: "2025-02-12", property: "87 Maple Ave", category: "Insurance", amount: 290 },
+                { id: 4, date: "2025-02-15", property: "210 Pine Road", category: "Property Tax", amount: 2100 },
+                { id: 5, date: "2025-02-20", property: "142 Oak Street", category: "Repairs", amount: 680 }
+            ];
+
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem('realestate_accounting_data', JSON.stringify(data));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('realestate_accounting_data');
+            if (saved) {
+                data = JSON.parse(saved);
+            } else {
+                loadSampleData();
+            }
+        }
+
+        function updateKPIs() {
+            let totalIncome = data.income.reduce((sum, item) => sum + item.amount, 0);
+            let totalExpenses = data.expenses.reduce((sum, item) => sum + item.amount, 0);
+            let net = totalIncome - totalExpenses;
+            
+            let occupiedUnits = data.properties.reduce((sum, p) => sum + (p.status === 'Occupied' ? p.units : 0), 0);
+            let totalUnits = data.properties.reduce((sum, p) => sum + p.units, 0);
+            let occupancy = totalUnits > 0 ? Math.round((occupiedUnits / totalUnits) * 100) : 0;
+
+            document.getElementById('total-income').innerHTML = '$' + totalIncome.toLocaleString();
+            document.getElementById('total-expenses').innerHTML = '$' + totalExpenses.toLocaleString();
+            document.getElementById('net-income').innerHTML = '$' + net.toLocaleString();
+            document.getElementById('occupancy').innerHTML = occupancy + '%';
+        }
+
+        function renderProperties() {
+            const tbody = document.getElementById('properties-table');
+            tbody.innerHTML = '';
+            
+            data.properties.forEach((prop, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-700 hover:bg-slate-800/50';
+                row.innerHTML = `
+                    <td class="px-4 py-3 font-medium">${prop.address}</td>
+                    <td class="px-4 py-3">${prop.units}</td>
+                    <td class="px-4 py-3 text-right">$${prop.rent.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-right">$${(prop.value || 0).toLocaleString()}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="px-3 py-0.5 text-xs rounded-full ${prop.status === 'Occupied' ? 'bg-emerald-900/60 text-emerald-400' : 'bg-amber-900/60 text-amber-400'}">
+                            ${prop.status}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <button onclick="deleteProperty(${index})" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function addProperty() {
+            const address = prompt("Property address:");
+            if (!address) return;
+            
+            const units = parseInt(prompt("Number of units:", "4")) || 4;
+            const rent = parseInt(prompt("Total monthly rent:", "5000")) || 5000;
+            const value = parseInt(prompt("Estimated value:", "750000")) || 750000;
+            
+            data.properties.push({
+                id: Date.now(),
+                address: address,
+                units: units,
+                rent: rent,
+                value: value,
+                status: "Occupied"
+            });
+            
+            saveData();
+            renderAll();
+        }
+
+        function deleteProperty(index) {
+            if (confirm("Delete this property?")) {
+                data.properties.splice(index, 1);
+                saveData();
+                renderAll();
+            }
+        }
+
+        function renderIncome() {
+            const tbody = document.getElementById('income-table');
+            tbody.innerHTML = '';
+            
+            data.income.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-700 hover:bg-slate-800/50';
+                row.innerHTML = `
+                    <td class="px-4 py-2">${entry.date}</td>
+                    <td class="px-4 py-2">${entry.property}</td>
+                    <td class="px-4 py-2">${entry.type}</td>
+                    <td class="px-4 py-2 text-right font-medium text-emerald-400">$${entry.amount.toLocaleString()}</td>
+                    <td class="px-2 py-2"><button onclick="deleteIncome(${index})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash text-xs"></i></button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function addIncomeEntry() {
+            const date = prompt("Date (YYYY-MM-DD):", "2025-02-01") || "2025-02-01";
+            const property = prompt("Property address:") || "142 Oak Street";
+            const type = prompt("Income type:", "Rent") || "Rent";
+            const amount = parseFloat(prompt("Amount:", "6200")) || 6200;
+            
+            data.income.push({ id: Date.now(), date, property, type, amount });
+            saveData();
+            renderAll();
+        }
+
+        function deleteIncome(index) {
+            data.income.splice(index, 1);
+            saveData();
+            renderAll();
+        }
+
+        function renderExpenses() {
+            const tbody = document.getElementById('expenses-table');
+            tbody.innerHTML = '';
+            
+            data.expenses.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-slate-700 hover:bg-slate-800/50';
+                row.innerHTML = `
+                    <td class="px-4 py-2">${entry.date}</td>
+                    <td class="px-4 py-2">${entry.property}</td>
+                    <td class="px-4 py-2">${entry.category}</td>
+                    <td class="px-4 py-2 text-right font-medium text-red-400">$${entry.amount.toLocaleString()}</td>
+                    <td class="px-2 py-2"><button onclick="deleteExpense(${index})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash text-xs"></i></button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function addExpenseEntry() {
+            const date = prompt("Date (YYYY-MM-DD):", "2025-02-03") || "2025-02-03";
+            const property = prompt("Property address:") || "142 Oak Street";
+            const category = prompt("Category:", "Maintenance") || "Maintenance";
+            const amount = parseFloat(prompt("Amount:", "450")) || 450;
+            
+            data.expenses.push({ id: Date.now(), date, property, category, amount });
+            saveData();
+            renderAll();
+        }
+
+        function deleteExpense(index) {
+            data.expenses.splice(index, 1);
+            saveData();
+            renderAll();
+        }
+
+        function updateCharts() {
+            // Income chart
+            const incomeByType = {};
+            data.income.forEach(item => {
+                incomeByType[item.type] = (incomeByType[item.type] || 0) + item.amount;
+            });
+            
+            const incomeLabels = Object.keys(incomeByType);
+            const incomeValues = Object.values(incomeByType);
+            
+            if (incomeChart) incomeChart.destroy();
+            const incomeCtx = document.getElementById('incomeChart');
+            incomeChart = new Chart(incomeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: incomeLabels,
+                    datasets: [{
+                        data: incomeValues,
+                        backgroundColor: ['#10b981', '#34d399', '#6ee7b7']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // Expense chart
+            const expenseByCat = {};
+            data.expenses.forEach(item => {
+                expenseByCat[item.category] = (expenseByCat[item.category] || 0) + item.amount;
+            });
+            
+            const expLabels = Object.keys(expenseByCat);
+            const expValues = Object.values(expenseByCat);
+            
+            if (expenseChart) expenseChart.destroy();
+            const expCtx = document.getElementById('expenseChart');
+            expenseChart = new Chart(expCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: expLabels,
+                    datasets: [{
+                        data: expValues,
+                        backgroundColor: ['#f87171', '#fb923c', '#fbbf24', '#a78bfa']
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        function renderPropertySummary() {
+            const container = document.getElementById('property-summary');
+            container.innerHTML = '';
+            
+            data.properties.forEach(prop => {
+                const propIncome = data.income.filter(i => i.property === prop.address).reduce((s, i) => s + i.amount, 0);
+                const propExpenses = data.expenses.filter(e => e.property === prop.address).reduce((s, e) => s + e.amount, 0);
+                const net = propIncome - propExpenses;
+                
+                const div = document.createElement('div');
+                div.className = 'bg-slate-950 rounded-2xl p-4 border border-slate-700';
+                div.innerHTML = `
+                    <div class="font-medium text-sm">${prop.address}</div>
+                    <div class="mt-3 flex justify-between text-sm">
+                        <div>Net: <span class="${net >= 0 ? 'text-emerald-400' : 'text-red-400'} font-semibold">$${net}</span></div>
+                        <div class="text-xs text-slate-400">${prop.status}</div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderMonthlyReport() {
+            let totalRental = 0;
+            let otherIncome = 0;
+            
+            data.income.forEach(item => {
+                if (item.type === 'Rent') totalRental += item.amount;
+                else otherIncome += item.amount;
+            });
+            
+            const totalRevenue = totalRental + otherIncome;
+            const totalExpenses = data.expenses.reduce((s, e) => s + e.amount, 0);
+            const noi = totalRevenue - totalExpenses;
+            
+            document.getElementById('report-rental').innerHTML = '$' + totalRental.toLocaleString();
+            document.getElementById('report-other').innerHTML = '$' + otherIncome.toLocaleString();
+            document.getElementById('report-revenue').innerHTML = '$' + totalRevenue.toLocaleString();
+            document.getElementById('report-noi').innerHTML = '$' + noi.toLocaleString();
+            
+            // Expense breakdown
+            const expBreak = {};
+            data.expenses.forEach(e => {
+                expBreak[e.category] = (expBreak[e.category] || 0) + e.amount;
+            });
+            
+            let html = '';
+            Object.entries(expBreak).forEach(([cat, amt]) => {
+                html += `<div class="flex justify-between py-1"><span>${cat}</span> <span class="font-medium">$${amt}</span></div>`;
+            });
+            
+            document.getElementById('report-expenses').innerHTML = html || '<div class="text-slate-400">No expenses recorded.</div>';
+        }
+
+        function renderAll() {
+            updateKPIs();
+            renderProperties();
+            renderIncome();
+            renderExpenses();
+            updateCharts();
+            renderPropertySummary();
+            renderMonthlyReport();
+        }
+
+        function switchTab(tabIndex) {
+            document.querySelectorAll('.tab-content').forEach((el, i) => {
+                el.classList.toggle('hidden', i !== tabIndex);
+            });
+            
+            document.querySelectorAll('.nav-tab').forEach((el, i) => {
+                el.classList.toggle('active', i === tabIndex);
+                el.classList.toggle('text-white', i === tabIndex);
+                el.classList.toggle('text-slate-400', i !== tabIndex);
+            });
+        }
+
+        function exportToCSV() {
+            let csv = "Date,Property,Category,Type,Amount\n";
+            
+            data.income.forEach(item => {
+                csv += `${item.date},${item.property},Income,${item.type},${item.amount}\n`;
+            });
+            
+            data.expenses.forEach(item => {
+                csv += `${item.date},${item.property},Expense,${item.category},${item.amount}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'real_estate_accounting_feb2025.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function resetData() {
+            if (confirm("Reset all data to sample values?")) {
+                localStorage.removeItem('realestate_accounting_data');
+                location.reload();
+            }
+        }
+
+        function init() {
+            loadData();
+            renderAll();
+            
+            // Default to dashboard tab
+            switchTab(0);
+            
+            // Keyboard shortcut hint
+            console.log('%c[Real Estate Accounting] Tool ready. Try adding entries or exporting data.', 'color:#64748b');
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

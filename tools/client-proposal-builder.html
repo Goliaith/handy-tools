@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Proposal Builder • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        .field { background:#0f172a; border:1px solid #334155; color:#e2e8f0; font-size:0.875rem; }
+        @media print { .no-print{display:none!important} body{background:white} }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-5xl mx-auto px-6 pt-5">
+        <div class="flex items-center justify-between mb-4 no-print">
+            <a href="../index.html" class="text-slate-400 hover:text-white text-sm"><i class="fa-solid fa-arrow-left"></i> Back to Portfolio</a>
+        </div>
+        <div class="bg-yellow-900/30 border border-yellow-600 text-yellow-200 text-xs rounded-2xl px-4 py-2 mb-4 flex items-center gap-x-2 no-print">
+            <i class="fa-solid fa-exclamation-triangle"></i>
+            <span><strong>Public demo.</strong> Do not enter real client data. Download the standalone file for private use.</span>
+        </div>
+        <div class="flex items-center justify-between mb-5 no-print">
+            <div>
+                <h1 class="font-semibold text-2xl tracking-tight">Client Proposal Builder</h1>
+                <p class="text-xs text-violet-300">Scope, price, timeline, accept/decline — print to PDF</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="downloadSelf()" class="px-3 py-1.5 text-xs font-semibold border border-violet-600 text-violet-300 rounded-2xl">Download this file</button>
+                <button onclick="addLine()" class="px-3 py-1.5 bg-white text-slate-900 font-semibold text-sm rounded-2xl">Add line</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 pb-10">
+            <div class="lg:col-span-2 space-y-4 no-print">
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-2 text-sm">
+                    <div class="font-semibold text-sm mb-1">FROM</div>
+                    <input id="fromName" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()" placeholder="Your name / studio">
+                    <input id="fromEmail" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()" placeholder="you@studio.com">
+                    <input id="fromRole" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()" placeholder="Role (e.g. Independent designer)">
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-2 text-sm">
+                    <div class="font-semibold text-sm mb-1">TO</div>
+                    <input id="toName" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()" placeholder="Client name">
+                    <input id="toCompany" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()" placeholder="Company">
+                    <input id="toEmail" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()" placeholder="client@email.com">
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 grid grid-cols-2 gap-3 text-sm">
+                    <div><div class="text-xs text-slate-400">Proposal #</div><input id="num" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()"></div>
+                    <div><div class="text-xs text-slate-400">Date</div><input type="date" id="date" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()"></div>
+                    <div><div class="text-xs text-slate-400">Valid until</div><input type="date" id="valid" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()"></div>
+                    <div><div class="text-xs text-slate-400">Tax %</div><input type="number" step="0.1" id="tax" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()"></div>
+                    <div class="col-span-2"><div class="text-xs text-slate-400">Title</div><input id="title" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()"></div>
+                    <div class="col-span-2"><div class="text-xs text-slate-400">Summary</div><textarea id="summary" rows="4" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()"></textarea></div>
+                    <div class="col-span-2"><div class="text-xs text-slate-400">Timeline / milestones</div><textarea id="timeline" rows="3" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()"></textarea></div>
+                    <div class="col-span-2"><div class="text-xs text-slate-400">Terms</div><textarea id="terms" rows="3" class="field w-full rounded-xl px-3 py-2" oninput="sync();save()"></textarea></div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-3">
+                <div id="paper" class="bg-white text-slate-900 rounded-3xl overflow-hidden border border-slate-300">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-6">
+                            <div>
+                                <div class="text-[10px] uppercase tracking-wider text-slate-400">Proposal</div>
+                                <div class="font-semibold text-xl" id="p-title">Project proposal</div>
+                                <div class="text-xs text-slate-500 mt-1" id="p-from"></div>
+                            </div>
+                            <div class="text-right text-xs text-slate-500">
+                                <div class="font-semibold text-slate-900" id="p-num"></div>
+                                <div>Date: <span id="p-date"></span></div>
+                                <div>Valid until: <span id="p-valid"></span></div>
+                            </div>
+                        </div>
+                        <div class="mb-5">
+                            <div class="text-[10px] font-semibold tracking-wider text-slate-400">PREPARED FOR</div>
+                            <div class="font-semibold" id="p-to">Client</div>
+                            <div class="text-xs text-slate-600" id="p-to-meta"></div>
+                        </div>
+                        <div class="mb-5 text-sm text-slate-700 whitespace-pre-wrap" id="p-summary"></div>
+                        <div class="text-[10px] font-semibold tracking-wider text-slate-400 mb-2">SCOPE</div>
+                        <div id="lines" class="space-y-2 mb-3"></div>
+                        <button type="button" onclick="addLine()" class="no-print text-xs px-3 py-1.5 rounded-xl border border-slate-300 text-slate-700">+ Add line</button>
+                        <div class="mt-5 border-t pt-3 text-sm space-y-1">
+                            <div class="flex justify-between"><span>Subtotal</span><span id="p-sub">$0.00</span></div>
+                            <div class="flex justify-between"><span>Tax (<span id="p-tax-rate">0</span>%)</span><span id="p-tax">$0.00</span></div>
+                            <div class="flex justify-between font-bold border-t pt-2"><span>Total</span><span id="p-total">$0.00</span></div>
+                        </div>
+                        <div class="mt-5">
+                            <div class="text-[10px] font-semibold tracking-wider text-slate-400">TIMELINE</div>
+                            <div class="text-sm text-slate-700 whitespace-pre-wrap" id="p-timeline"></div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="text-[10px] font-semibold tracking-wider text-slate-400">TERMS</div>
+                            <div class="text-sm text-slate-700 whitespace-pre-wrap" id="p-terms"></div>
+                        </div>
+                        <div class="mt-6 grid grid-cols-2 gap-6 text-xs">
+                            <div class="border-t pt-2">
+                                <div class="font-semibold">Accepted by</div>
+                                <div class="h-8"></div>
+                                <div class="text-slate-500">Name / date</div>
+                            </div>
+                            <div class="border-t pt-2">
+                                <div class="font-semibold">Prepared by</div>
+                                <div class="h-8"></div>
+                                <div class="text-slate-500" id="p-sign"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-4 no-print">
+                    <button onclick="printProposal()" class="flex-1 px-4 py-2.5 bg-white text-slate-900 font-semibold rounded-2xl">Print / PDF</button>
+                    <button onclick="exportJSON()" class="px-4 py-2.5 bg-slate-800 rounded-2xl text-sm">Export JSON</button>
+                    <button onclick="resetDemo()" class="px-4 py-2.5 bg-slate-800 rounded-2xl text-sm">Reset sample</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const KEY = 'handy_proposal_builder_v1';
+        let items = [];
+
+        const $ = (id) => document.getElementById(id);
+
+        function defaults() {
+            const today = new Date();
+            const valid = new Date(today); valid.setDate(valid.getDate() + 14);
+            const iso = (d) => d.toISOString().slice(0,10);
+            return {
+                fromName: 'Your Studio',
+                fromEmail: 'hello@studio.com',
+                fromRole: 'Independent contractor',
+                toName: 'Alex Rivera',
+                toCompany: 'Rivera Goods',
+                toEmail: 'alex@example.com',
+                num: 'PROP-' + today.getFullYear() + '-001',
+                date: iso(today),
+                valid: iso(valid),
+                tax: '0',
+                title: 'Website rebuild — proposal',
+                summary: 'A clear, fixed-scope rebuild of the marketing site: homepage, three inner pages, and a simple contact form. You get source files and a 14-day tweak window after launch.',
+                timeline: 'Week 1 — content + wireframes\nWeek 2–3 — build\nWeek 4 — review, launch, handoff',
+                terms: '50% to start, 50% on launch. Two revision rounds included. Extra work billed at the hourly rate below. This is a proposal, not a contract, until both sides sign.',
+                items: [
+                    { id: 'a', desc: 'Homepage + 3 inner pages', qty: 1, rate: 2400 },
+                    { id: 'b', desc: 'Contact form + basic SEO setup', qty: 1, rate: 400 },
+                    { id: 'c', desc: 'Launch support (hourly, estimate)', qty: 4, rate: 85 }
+                ]
+            };
+        }
+
+        function readForm() {
+            return {
+                fromName: $('fromName').value, fromEmail: $('fromEmail').value, fromRole: $('fromRole').value,
+                toName: $('toName').value, toCompany: $('toCompany').value, toEmail: $('toEmail').value,
+                num: $('num').value, date: $('date').value, valid: $('valid').value, tax: $('tax').value,
+                title: $('title').value, summary: $('summary').value, timeline: $('timeline').value, terms: $('terms').value,
+                items
+            };
+        }
+
+        function fill(d) {
+            ['fromName','fromEmail','fromRole','toName','toCompany','toEmail','num','date','valid','tax','title','summary','timeline','terms']
+                .forEach((k) => { if ($(k)) $(k).value = d[k] || ''; });
+            items = (d.items || []).map((it, i) => ({ id: it.id || ('l'+i), desc: it.desc || '', qty: +it.qty || 0, rate: +it.rate || 0 }));
+        }
+
+        function save() { localStorage.setItem(KEY, JSON.stringify(readForm())); }
+
+        function addLine() {
+            items.push({ id: 'l'+Date.now(), desc: 'Deliverable', qty: 1, rate: 100 });
+            renderLines(); sync(); save();
+        }
+
+        function removeLine(id) {
+            items = items.filter((i) => i.id !== id);
+            renderLines(); sync(); save();
+        }
+
+        function upd(id, field, value) {
+            const it = items.find((i) => i.id === id);
+            if (!it) return;
+            if (field === 'qty' || field === 'rate') it[field] = parseFloat(value) || 0;
+            else it[field] = value;
+            sync(); save();
+        }
+
+        function money(n) { return '$' + (Math.max(0, n)).toFixed(2); }
+
+        function renderLines() {
+            const c = $('lines');
+            c.innerHTML = '';
+            items.forEach((it) => {
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-12 gap-2 items-center text-sm';
+                row.innerHTML =
+                    '<div class="col-span-6"><input value="'+escapeAttr(it.desc)+'" oninput="upd(\''+it.id+'\',\'desc\',this.value)" class="w-full px-2 py-1.5 rounded-xl border text-sm"></div>' +
+                    '<div class="col-span-2"><input type="number" value="'+it.qty+'" oninput="upd(\''+it.id+'\',\'qty\',this.value)" class="w-full px-2 py-1.5 rounded-xl border text-sm"></div>' +
+                    '<div class="col-span-2"><input type="number" step="0.01" value="'+it.rate+'" oninput="upd(\''+it.id+'\',\'rate\',this.value)" class="w-full px-2 py-1.5 rounded-xl border text-sm"></div>' +
+                    '<div class="col-span-1 text-right tabular-nums" id="amt-'+it.id+'">'+money(it.qty*it.rate)+'</div>' +
+                    '<div class="col-span-1"><button type="button" onclick="removeLine(\''+it.id+'\')" class="no-print text-red-500 px-1">×</button></div>';
+                c.appendChild(row);
+            });
+        }
+
+        function escapeAttr(s) {
+            return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+        }
+
+        function sync() {
+            $('p-title').textContent = $('title').value || 'Project proposal';
+            $('p-from').textContent = [$('fromName').value, $('fromRole').value, $('fromEmail').value].filter(Boolean).join(' · ');
+            $('p-num').textContent = $('num').value;
+            $('p-date').textContent = $('date').value;
+            $('p-valid').textContent = $('valid').value;
+            $('p-to').textContent = $('toName').value || 'Client';
+            $('p-to-meta').textContent = [$('toCompany').value, $('toEmail').value].filter(Boolean).join(' · ');
+            $('p-summary').textContent = $('summary').value;
+            $('p-timeline').textContent = $('timeline').value;
+            $('p-terms').textContent = $('terms').value;
+            $('p-sign').textContent = $('fromName').value;
+            let sub = 0;
+            items.forEach((it) => {
+                const amt = (it.qty||0)*(it.rate||0);
+                sub += amt;
+                const el = document.getElementById('amt-'+it.id);
+                if (el) el.textContent = money(amt);
+            });
+            const taxRate = parseFloat($('tax').value) || 0;
+            const tax = sub * taxRate / 100;
+            $('p-sub').textContent = money(sub);
+            $('p-tax-rate').textContent = taxRate;
+            $('p-tax').textContent = money(tax);
+            $('p-total').textContent = money(sub + tax);
+        }
+
+        function printProposal() {
+            const paper = $('paper').cloneNode(true);
+            paper.querySelectorAll('input').forEach((inp) => {
+                const span = document.createElement('span');
+                span.textContent = inp.value || '';
+                span.className = 'text-sm';
+                inp.parentNode.replaceChild(span, inp);
+            });
+            paper.querySelectorAll('.no-print, button').forEach((el) => el.remove());
+            const w = window.open('', '', 'width=800,height=700');
+            w.document.write('<html><head><title>Proposal</title><style>body{font-family:sans-serif;padding:28px;color:#111827}</style></head><body>'+paper.innerHTML+'</body></html>');
+            w.document.close();
+            setTimeout(() => w.print(), 200);
+        }
+
+        function exportJSON() {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(readForm(), null, 2)], {type:'application/json'}));
+            a.download = ($('num').value || 'proposal') + '.json';
+            document.body.appendChild(a); a.click(); a.remove();
+        }
+
+        function downloadSelf() {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob(['<!DOCTYPE html>\n'+document.documentElement.outerHTML], {type:'text/html'}));
+            a.download = 'client-proposal-builder.html';
+            document.body.appendChild(a); a.click(); a.remove();
+        }
+
+        function resetDemo() {
+            fill(defaults());
+            renderLines(); sync(); save();
+        }
+
+        (function init() {
+            const raw = localStorage.getItem(KEY);
+            if (raw) {
+                try { fill(JSON.parse(raw)); }
+                catch (e) { fill(defaults()); }
+            } else {
+                fill(defaults());
+            }
+            renderLines(); sync();
+        })();
+    </script>
+</body>
+</html>
