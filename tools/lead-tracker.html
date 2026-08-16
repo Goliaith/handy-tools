@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Tracker • Handy Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: Inter, system-ui, sans-serif; }
+        .field { background:#0f172a; border:1px solid #334155; color:#e2e8f0; font-size:0.875rem; }
+        .col { min-height: 16rem; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div class="max-w-6xl mx-auto px-5 py-5">
+        <div class="mb-3"><a href="../index.html" class="text-slate-400 hover:text-white text-sm">← Back to Portfolio</a></div>
+        <div class="bg-yellow-900/30 border border-yellow-600 text-yellow-200 text-xs rounded-2xl px-4 py-2 mb-4">
+            <strong>Public demo.</strong> Do not enter real leads. The offline file is in the paid pack.
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+                <h1 class="font-semibold text-2xl tracking-tight">Lead Tracker</h1>
+                <p class="text-xs text-sky-300">New → Contacted → Qualified → Won / Lost. CSV export.</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="exportCSV()" class="px-3 py-1.5 text-xs font-semibold border border-sky-600 text-sky-300 rounded-2xl">Export CSV</button>
+                <button onclick="addLead()" class="px-3 py-1.5 bg-white text-slate-900 font-semibold text-sm rounded-2xl">Add lead</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 text-sm">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3"><div class="text-xs text-slate-400">Open</div><div id="stat-open" class="text-2xl font-semibold">0</div></div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3"><div class="text-xs text-slate-400">Pipeline $</div><div id="stat-value" class="text-2xl font-semibold">$0</div></div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3"><div class="text-xs text-slate-400">Due / overdue</div><div id="stat-due" class="text-2xl font-semibold text-amber-300">0</div></div>
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3"><div class="text-xs text-slate-400">Won</div><div id="stat-won" class="text-2xl font-semibold text-emerald-400">0</div></div>
+        </div>
+        <div id="board" class="grid grid-cols-1 md:grid-cols-5 gap-3"></div>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onclick="if(event.target.id==='modal')closeModal()">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl p-5 w-full max-w-md space-y-3">
+            <div class="font-semibold" id="modal-title">Lead</div>
+            <input id="f-name" class="field w-full rounded-xl px-3 py-2" placeholder="Name">
+            <input id="f-company" class="field w-full rounded-xl px-3 py-2" placeholder="Company">
+            <input id="f-email" class="field w-full rounded-xl px-3 py-2" placeholder="Email">
+            <input id="f-phone" class="field w-full rounded-xl px-3 py-2" placeholder="Phone">
+            <div class="grid grid-cols-2 gap-2">
+                <select id="f-status" class="field w-full rounded-xl px-3 py-2">
+                    <option>New</option><option>Contacted</option><option>Qualified</option><option>Won</option><option>Lost</option>
+                </select>
+                <input id="f-value" type="number" step="1" class="field w-full rounded-xl px-3 py-2" placeholder="Value $">
+            </div>
+            <input id="f-next" type="date" class="field w-full rounded-xl px-3 py-2">
+            <textarea id="f-notes" rows="3" class="field w-full rounded-xl px-3 py-2" placeholder="Next action / notes"></textarea>
+            <div class="flex gap-2 pt-1">
+                <button onclick="saveLead()" class="flex-1 px-3 py-2 bg-white text-slate-900 font-semibold rounded-2xl">Save</button>
+                <button onclick="deleteLead()" class="px-3 py-2 bg-slate-800 rounded-2xl text-sm">Delete</button>
+                <button onclick="closeModal()" class="px-3 py-2 bg-slate-800 rounded-2xl text-sm">Close</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+const KEY = 'handy_lead_tracker_v1';
+const COLS = ['New','Contacted','Qualified','Won','Lost'];
+const COLORS = {New:'slate',Contacted:'sky',Qualified:'violet',Won:'emerald',Lost:'rose'};
+let leads = [];
+let editing = null;
+
+function uid(){ return 'l'+Date.now()+Math.random().toString(16).slice(2,6); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function money(n){ return '$'+Math.round(n||0).toLocaleString(); }
+function load(){
+    try { leads = JSON.parse(localStorage.getItem(KEY)||'[]'); }
+    catch(e){ leads = []; }
+    if (!leads.length) {
+        leads = [
+            {id:uid(), name:'Jordan Hale', company:'Hale Dental', email:'jordan@example.com', phone:'', status:'New', value:2500, next:today(), notes:'Asked for a proposal on the intake form.'},
+            {id:uid(), name:'Sam Ortiz', company:'Ortiz Rentals', email:'sam@example.com', phone:'', status:'Qualified', value:4800, next:today(), notes:'Wants landlord pack walkthrough Friday.'}
+        ];
+        save();
+    }
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(leads)); render(); }
+function addLead(){ editing = {id:uid(), name:'', company:'', email:'', phone:'', status:'New', value:0, next:today(), notes:''}; openModal(); }
+function openLead(id){ editing = Object.assign({}, leads.find(l=>l.id===id)); openModal(); }
+function openModal(){
+    const e = editing;
+    ['name','company','email','phone','status','value','next','notes'].forEach(k=>{
+        const el = document.getElementById('f-'+ (k==='value'?'value':k));
+        if (el) el.value = e[k] ?? '';
+    });
+    document.getElementById('modal-title').textContent = e.name || 'New lead';
+    document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal(){ document.getElementById('modal').classList.add('hidden'); editing=null; }
+function saveLead(){
+    if (!editing) return;
+    editing.name = document.getElementById('f-name').value.trim() || 'Untitled lead';
+    editing.company = document.getElementById('f-company').value.trim();
+    editing.email = document.getElementById('f-email').value.trim();
+    editing.phone = document.getElementById('f-phone').value.trim();
+    editing.status = document.getElementById('f-status').value;
+    editing.value = parseFloat(document.getElementById('f-value').value)||0;
+    editing.next = document.getElementById('f-next').value;
+    editing.notes = document.getElementById('f-notes').value;
+    const i = leads.findIndex(l=>l.id===editing.id);
+    if (i>=0) leads[i]=editing; else leads.unshift(editing);
+    save(); closeModal();
+}
+function deleteLead(){
+    if (!editing) return;
+    leads = leads.filter(l=>l.id!==editing.id);
+    save(); closeModal();
+}
+function move(id, status){
+    const l = leads.find(x=>x.id===id);
+    if (l){ l.status=status; save(); }
+}
+function exportCSV(){
+    const cols = ['name','company','email','phone','status','value','next','notes'];
+    const lines = [cols.join(',')].concat(leads.map(l=>cols.map(c=>`"${String(l[c]??'').replace(/"/g,'""')}"`).join(',')));
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));
+    a.download='leads.csv'; document.body.appendChild(a); a.click(); a.remove();
+}
+function due(l){
+    if (!l.next || l.status==='Won' || l.status==='Lost') return false;
+    return l.next <= today();
+}
+function render(){
+    const board=document.getElementById('board');
+    board.innerHTML='';
+    COLS.forEach(col=>{
+        const items=leads.filter(l=>l.status===col);
+        const wrap=document.createElement('div');
+        wrap.className='bg-slate-900/70 border border-slate-800 rounded-3xl p-3 col';
+        wrap.innerHTML=`<div class="flex justify-between items-center mb-2"><div class="text-xs font-semibold">${col}</div><div class="text-[10px] text-slate-500">${items.length}</div></div><div class="space-y-2" id="col-${col}"></div>`;
+        board.appendChild(wrap);
+        const box=wrap.querySelector('#col-'+col);
+        items.forEach(l=>{
+            const card=document.createElement('button');
+            card.type='button';
+            card.className='w-full text-left bg-slate-950 border border-slate-800 rounded-2xl p-3 hover:border-sky-700';
+            card.onclick=()=>openLead(l.id);
+            card.innerHTML=`<div class="font-medium text-sm">${l.name}</div>
+                <div class="text-[11px] text-slate-400">${l.company||''}</div>
+                <div class="flex justify-between mt-2 text-[11px]"><span>${money(l.value)}</span><span class="${due(l)?'text-amber-300':'text-slate-500'}">${l.next||''}</span></div>
+                <div class="text-[11px] text-slate-500 mt-1 line-clamp-2">${l.notes||''}</div>`;
+            box.appendChild(card);
+        });
+    });
+    const open=leads.filter(l=>!['Won','Lost'].includes(l.status));
+    document.getElementById('stat-open').textContent=open.length;
+    document.getElementById('stat-value').textContent=money(open.reduce((s,l)=>s+(l.value||0),0));
+    document.getElementById('stat-due').textContent=leads.filter(due).length;
+    document.getElementById('stat-won').textContent=leads.filter(l=>l.status==='Won').length;
+}
+load(); render();
+</script>
+</body>
+</html>
