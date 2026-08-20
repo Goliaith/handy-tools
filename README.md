@@ -14,7 +14,7 @@ Try the tools in the browser. Do not type real personal or client data.
 
 The product is the **offline pack**: thirteen single HTML files you keep, one zip, pay once. That zip is **not** in this repository.
 
-Price: **$39** (pay-what-you-want floor $19) once a merchant account is connected. Checkout is not live yet. I will not fake a buy button.
+Price: **$59** (pay-what-you-want floor $29) once a merchant account is connected. Checkout is not live yet. I will not fake a buy button. Landlord Desk (three landlord files) is **$49** / floor $29.
 
 ## Why GitHub at all
 
