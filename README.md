@@ -14,7 +14,7 @@ Try the tools in the browser. Do not type real personal or client data.
 
 The product is the **offline pack**: thirteen single HTML files you keep, one zip, pay once. That zip is **not** in this repository.
 
-Price: **$59** suggested (Gumroad currently shows **$39+** as the PWYW floor). Buy: [mrsilhouette.gumroad.com/l/handy-tools-pack](https://mrsilhouette.gumroad.com/l/handy-tools-pack). Landlord Desk (three landlord files) is **$49** / floor $29 and is **not** on Gumroad yet.
+Price: **$59** suggested (Gumroad currently shows **$39+** as the PWYW floor). Buy: [mrsilhouette.gumroad.com/l/handy-tools-pack](https://mrsilhouette.gumroad.com/l/handy-tools-pack). Singles are $9–$19 on the same shop.
 
 ## Why GitHub at all
 
